@@ -1,5 +1,7 @@
 # E-Commerce Platform - Burkina Faso
 
+![CI](https://github.com/Fabricesimpore/Ecommerce/actions/workflows/backend-ci.yml/badge.svg)
+
 A modern, production-grade e-commerce platform tailored for the Burkina Faso market, featuring multi-vendor support, mobile money integration, and local delivery management.
 
 ## 🚀 Features
