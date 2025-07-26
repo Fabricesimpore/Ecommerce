@@ -37,7 +37,8 @@
       "Bash(NODE_ENV=test npx jest --testPathIgnorePatterns=\"tests/integration/models.test.js\" --testPathIgnorePatterns=\"tests/integration/server.test.js\" --testPathIgnorePatterns=\"tests/integration/real-implementations.test.js\")",
       "Bash(npx create-next-app:*)",
       "Bash(git rm:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(npm run type-check:*)"
     ],
     "deny": []
   }
