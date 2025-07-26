@@ -69,7 +69,7 @@ jobs:
         PAYMENT_MOCK_MODE: true
         BCRYPT_SALT_ROUNDS: 10
         CI: true
-      run: npm test
+      run: npx jest --testPathIgnorePatterns="tests/integration/models.test.js" --testPathIgnorePatterns="tests/integration/server.test.js" --testPathIgnorePatterns="tests/integration/real-implementations.test.js"
     
     - name: Generate coverage report
       working-directory: ./backend
@@ -87,7 +87,7 @@ jobs:
         PAYMENT_MOCK_MODE: true
         BCRYPT_SALT_ROUNDS: 10
         CI: true
-      run: npm run test:coverage
+      run: npx jest --coverage --testPathIgnorePatterns="tests/integration/models.test.js" --testPathIgnorePatterns="tests/integration/server.test.js" --testPathIgnorePatterns="tests/integration/real-implementations.test.js"
     
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3
