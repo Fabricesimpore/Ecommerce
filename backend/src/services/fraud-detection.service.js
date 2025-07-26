@@ -102,7 +102,9 @@ class FraudDetectionService {
         transaction_data: transactionData
       });
 
-      console.error('Fraud analysis error:', error);
+      if (process.env.NODE_ENV !== 'test') {
+        console.error('Fraud analysis error:', error);
+      }
 
       // Return safe default in case of system error
       return {
@@ -247,7 +249,9 @@ class FraudDetectionService {
 
       return result.rows[0].id;
     } catch (error) {
-      console.error('Update IP reputation error:', error);
+      if (process.env.NODE_ENV !== 'test') {
+        console.error('Update IP reputation error:', error);
+      }
       throw error;
     }
   }
@@ -424,7 +428,9 @@ class FraudDetectionService {
         }
       };
     } catch (error) {
-      console.error('Resolve fraud incident error:', error);
+      if (process.env.NODE_ENV !== 'test') {
+        console.error('Resolve fraud incident error:', error);
+      }
       throw error;
     }
   }
@@ -527,7 +533,9 @@ class FraudDetectionService {
         }))
       };
     } catch (error) {
-      console.error('Fraud statistics error:', error);
+      if (process.env.NODE_ENV !== 'test') {
+        console.error('Fraud statistics error:', error);
+      }
       throw new Error('Failed to get fraud statistics');
     }
   }

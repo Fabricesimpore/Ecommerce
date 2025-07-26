@@ -133,6 +133,18 @@ class MockDeliveryService {
       ]
     };
   }
+
+  static async assignDelivery(orderId, driverId) {
+    return {
+      id: `delivery-${Date.now()}`,
+      orderId,
+      driverId,
+      status: 'assigned',
+      assignedAt: new Date(),
+      created_at: new Date(),
+      updated_at: new Date()
+    };
+  }
 }
 
 module.exports = MockDeliveryService;

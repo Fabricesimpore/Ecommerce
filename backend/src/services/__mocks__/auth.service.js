@@ -30,6 +30,8 @@ class MockAuthService {
 
     return {
       user: mockUser,
+      accessToken: `mock-access-token-${mockUser.role}`,
+      refreshToken: `mock-refresh-token-${mockUser.role}`,
       tokens: {
         accessToken: `mock-access-token-${mockUser.role}`,
         refreshToken: `mock-refresh-token-${mockUser.role}`
@@ -97,6 +99,8 @@ class MockAuthService {
 
     return {
       user: mockUser,
+      accessToken: `mock-access-token-${mockUser.role}`,
+      refreshToken: `mock-refresh-token-${mockUser.role}`,
       tokens: {
         accessToken: `mock-access-token-${mockUser.role}`,
         refreshToken: `mock-refresh-token-${mockUser.role}`

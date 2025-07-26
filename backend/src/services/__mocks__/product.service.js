@@ -275,6 +275,31 @@ class MockProductService {
       inStock: quantity <= 10
     };
   }
+
+  static async getAllProducts() {
+    return [
+      {
+        id: 'product-1',
+        title: 'Product 1',
+        description: 'Description 1',
+        price: 29.99,
+        category: 'electronics',
+        vendorId: 'vendor-123',
+        status: 'active',
+        toJSON() { return this; }
+      },
+      {
+        id: 'product-2',
+        title: 'Product 2',
+        description: 'Description 2',
+        price: 39.99,
+        category: 'clothing',
+        vendorId: 'vendor-456',
+        status: 'active',
+        toJSON() { return this; }
+      }
+    ];
+  }
 }
 
 module.exports = MockProductService;

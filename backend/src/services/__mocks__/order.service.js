@@ -3,6 +3,7 @@ class MockOrderService {
   static async createOrder(orderData) {
     return {
       id: `order-${Date.now()}`,
+      orderNumber: `ORD-${Date.now()}`,
       ...orderData,
       status: 'pending',
       paymentStatus: 'pending',
