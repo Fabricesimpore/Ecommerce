@@ -16,7 +16,7 @@ class MockCart {
     if (mockCartStore.has(userId)) {
       return mockCartStore.get(userId);
     }
-    
+
     // Create new cart with initial items
     const cart = new MockCart({
       id: `cart-${userId}`,
@@ -33,7 +33,7 @@ class MockCart {
       created_at: new Date(),
       updated_at: new Date()
     });
-    
+
     mockCartStore.set(userId, cart);
     return cart;
   }
@@ -247,7 +247,7 @@ class MockCart {
       updated_at: this.updated_at
     };
   }
-  
+
   static clearMockStore() {
     mockCartStore.clear();
   }

@@ -257,7 +257,8 @@ class PaymentService {
   // Process Cash on Delivery payment
   async processCashOnDeliveryPayment(payment) {
     // COD payments are confirmed manually by delivery driver
-    await payment.updateStatus('processing', { gatewayResponse: { method: 'cash_on_delivery', status: 'pending_delivery' } });
+    const gatewayResponse = { method: 'cash_on_delivery', status: 'pending_delivery' };
+    await payment.updateStatus('processing', { gatewayResponse });
 
     return {
       success: true,

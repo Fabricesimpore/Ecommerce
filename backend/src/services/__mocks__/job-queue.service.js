@@ -55,7 +55,7 @@ class MockJobQueueService {
       console.error(`Job ${jobName} not found`);
       return;
     }
-    
+
     try {
       console.log(`🏃 Executing ${description || jobName}...`);
 
@@ -251,22 +251,6 @@ class MockJobQueueService {
     }
 
     return await this.executeJob(jobName, job.jobFunction, job.description);
-  }
-
-  getJobStatus(jobName) {
-    const job = this.jobs.get(jobName);
-    if (!job) {
-      return null;
-    }
-    
-    return {
-      name: jobName,
-      isActive: job.isActive,
-      lastRun: job.lastRun,
-      runCount: job.runCount,
-      lastStatus: job.lastStatus,
-      nextRun: job.isActive ? this.getNextRunTime() : null
-    };
   }
 
   async stopAll() {
