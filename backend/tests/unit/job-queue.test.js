@@ -68,6 +68,11 @@ describe('Job Queue Service', () => {
     JobQueueService.jobs.clear();
     JobQueueService.jobHistory = [];
     JobQueueService.isRunning = false;
+    
+    // Set the mock database in the service
+    if (JobQueueService.setMockDb) {
+      JobQueueService.setMockDb(mockDb);
+    }
   });
 
   afterEach(() => {

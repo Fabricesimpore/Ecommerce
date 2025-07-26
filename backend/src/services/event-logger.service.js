@@ -69,7 +69,9 @@ class EventLogger {
       return eventId;
     } catch (error) {
       // Fallback logging to console if database logging fails
-      console.error('Event logging failed:', error);
+      if (process.env.NODE_ENV !== 'test') {
+        console.error('Event logging failed:', error);
+      }
       console.log('Event data:', options);
       return null;
     }
@@ -326,7 +328,9 @@ class EventLogger {
         }
       };
     } catch (error) {
-      console.error('Get event history error:', error);
+      if (process.env.NODE_ENV !== 'test') {
+        console.error('Get event history error:', error);
+      }
       throw new Error('Failed to retrieve event history');
     }
   }
@@ -418,7 +422,9 @@ class EventLogger {
         }
       };
     } catch (error) {
-      console.error('Get events by actor error:', error);
+      if (process.env.NODE_ENV !== 'test') {
+        console.error('Get events by actor error:', error);
+      }
       throw new Error('Failed to retrieve actor events');
     }
   }
@@ -460,7 +466,9 @@ class EventLogger {
         }))
       };
     } catch (error) {
-      console.error('Event statistics error:', error);
+      if (process.env.NODE_ENV !== 'test') {
+        console.error('Event statistics error:', error);
+      }
       throw new Error('Failed to get event statistics');
     }
   }
@@ -488,7 +496,9 @@ class EventLogger {
         retentionDays
       };
     } catch (error) {
-      console.error('Event cleanup error:', error);
+      if (process.env.NODE_ENV !== 'test') {
+        console.error('Event cleanup error:', error);
+      }
       throw new Error('Failed to cleanup old events');
     }
   }

@@ -80,7 +80,9 @@ class AnalyticsService {
         generatedAt: new Date().toISOString()
       };
     } catch (error) {
-      console.error('Analytics summary error:', error);
+      if (process.env.NODE_ENV !== 'test') {
+        console.error('Analytics summary error:', error);
+      }
       throw new Error('Failed to generate analytics summary');
     }
   }
@@ -108,7 +110,9 @@ class AnalyticsService {
         period: `${days} days`
       };
     } catch (error) {
-      console.error('Daily overview error:', error);
+      if (process.env.NODE_ENV !== 'test') {
+        console.error('Daily overview error:', error);
+      }
       throw new Error('Failed to get daily overview');
     }
   }
@@ -164,7 +168,9 @@ class AnalyticsService {
         period: `${days} days`
       };
     } catch (error) {
-      console.error('Product analytics error:', error);
+      if (process.env.NODE_ENV !== 'test') {
+        console.error('Product analytics error:', error);
+      }
       throw new Error('Failed to get product analytics');
     }
   }
@@ -229,7 +235,9 @@ class AnalyticsService {
         period: `${days} days`
       };
     } catch (error) {
-      console.error('Vendor analytics error:', error);
+      if (process.env.NODE_ENV !== 'test') {
+        console.error('Vendor analytics error:', error);
+      }
       throw new Error('Failed to get vendor analytics');
     }
   }
@@ -278,7 +286,9 @@ class AnalyticsService {
         period: `${days} days`
       };
     } catch (error) {
-      console.error('Payment analytics error:', error);
+      if (process.env.NODE_ENV !== 'test') {
+        console.error('Payment analytics error:', error);
+      }
       throw new Error('Failed to get payment analytics');
     }
   }
@@ -346,7 +356,9 @@ class AnalyticsService {
         period: `${days} days`
       };
     } catch (error) {
-      console.error('User behavior analytics error:', error);
+      if (process.env.NODE_ENV !== 'test') {
+        console.error('User behavior analytics error:', error);
+      }
       throw new Error('Failed to get user behavior analytics');
     }
   }
@@ -431,7 +443,9 @@ class AnalyticsService {
         }
       };
     } catch (error) {
-      console.error('Real-time dashboard error:', error);
+      if (process.env.NODE_ENV !== 'test') {
+        console.error('Real-time dashboard error:', error);
+      }
       throw new Error('Failed to get real-time dashboard data');
     }
   }
@@ -486,7 +500,9 @@ class AnalyticsService {
         eventData: { analyticsType: 'product', eventType, metadata }
       });
     } catch (error) {
-      console.error('Product analytics update error:', error);
+      if (process.env.NODE_ENV !== 'test') {
+        console.error('Product analytics update error:', error);
+      }
     }
   }
 
@@ -502,7 +518,9 @@ class AnalyticsService {
       console.log(`✅ Daily analytics calculated for ${dateStr}`);
       return { success: true, date: dateStr };
     } catch (error) {
-      console.error('❌ Daily analytics calculation failed:', error);
+      if (process.env.NODE_ENV !== 'test') {
+        console.error('❌ Daily analytics calculation failed:', error);
+      }
       throw error;
     }
   }
@@ -558,7 +576,9 @@ class AnalyticsService {
         }
       };
     } catch (error) {
-      console.error('Analytics export error:', error);
+      if (process.env.NODE_ENV !== 'test') {
+        console.error('Analytics export error:', error);
+      }
       throw new Error('Failed to generate analytics export');
     }
   }

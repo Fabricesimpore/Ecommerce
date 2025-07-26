@@ -31,7 +31,9 @@
       "WebFetch(domain:api.github.com)",
       "Bash(npm run test:*)",
       "Bash(timeout 120s npm run test)",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "Bash(timeout 120 npm test -- --passWithNoTests --verbose=false)",
+      "Bash(NODE_ENV=test npm test)"
     ],
     "deny": []
   }
