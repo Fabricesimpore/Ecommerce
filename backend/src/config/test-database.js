@@ -99,29 +99,36 @@ class MockDatabase {
     return { rows: [] };
   }
 
+  // eslint-disable-next-line class-methods-use-this
   extractTableName(query) {
     const match = query.match(/(?:from|into|update)\s+(\w+)/i);
     return match ? match[1] : null;
   }
 
+  // eslint-disable-next-line class-methods-use-this
   createMockRecord(tableName, params) {
     const timestamp = new Date().toISOString();
 
     switch (tableName) {
-      case 'users':
+      case 'users': {
         // Use params for user data if provided
+        // eslint-disable-next-line camelcase
         const [first_name, last_name, email, phone, password_hash, role] = params || [];
         return {
+          // eslint-disable-next-line camelcase
           first_name: first_name || 'Test',
+          // eslint-disable-next-line camelcase
           last_name: last_name || 'User',
           email: email || 'test@example.com',
           phone: phone || '+22670000000',
+          // eslint-disable-next-line camelcase
           password_hash: password_hash || '$2b$10$hashedpassword',
           role: role || 'buyer',
           status: 'active',
           created_at: timestamp,
           updated_at: timestamp
         };
+      }
 
       case 'products':
         return {
@@ -241,6 +248,7 @@ class MockDatabase {
       }
     ];
 
+    // eslint-disable-next-line no-console
     console.log('✅ Mock test data loaded');
   }
 
