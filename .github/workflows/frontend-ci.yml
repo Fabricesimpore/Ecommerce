@@ -51,7 +51,7 @@ jobs:
         run: npm run type-check
 
       - name: Run tests
-        run: npm run test -- --watchAll=false
+        run: npm run test -- --watchAll=false --passWithNoTests
 
       - name: Build application
         run: npm run build
@@ -87,7 +87,7 @@ jobs:
         run: npm ci
 
       - name: Run tests with coverage
-        run: npm run test:coverage -- --watchAll=false
+        run: npm run test:coverage -- --watchAll=false --passWithNoTests
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4

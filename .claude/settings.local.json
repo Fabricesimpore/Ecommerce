@@ -34,7 +34,10 @@
       "Bash(node:*)",
       "Bash(timeout 120 npm test -- --passWithNoTests --verbose=false)",
       "Bash(NODE_ENV=test npm test)",
-      "Bash(NODE_ENV=test npx jest --testPathIgnorePatterns=\"tests/integration/models.test.js\" --testPathIgnorePatterns=\"tests/integration/server.test.js\" --testPathIgnorePatterns=\"tests/integration/real-implementations.test.js\")"
+      "Bash(NODE_ENV=test npx jest --testPathIgnorePatterns=\"tests/integration/models.test.js\" --testPathIgnorePatterns=\"tests/integration/server.test.js\" --testPathIgnorePatterns=\"tests/integration/real-implementations.test.js\")",
+      "Bash(npx create-next-app:*)",
+      "Bash(git rm:*)",
+      "Bash(ls:*)"
     ],
     "deny": []
   }
