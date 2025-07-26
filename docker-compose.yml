@@ -1,0 +1,125 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: ecommerce-postgres
+    environment:
+      POSTGRES_DB: ${DB_NAME:-ecommerce_burkina}
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/database/init:/docker-entrypoint-initdb.d
+    networks:
+      - ecommerce-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-ecommerce_burkina}"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: ecommerce-redis
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - ecommerce-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # Backend API
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: ecommerce-backend
+    ports:
+      - "${PORT:-3000}:3000"
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+      PORT: 3000
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:-ecommerce_burkina}
+      DB_USER: ${DB_USER:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      JWT_SECRET: ${JWT_SECRET}
+      BCRYPT_SALT_ROUNDS: ${BCRYPT_SALT_ROUNDS:-12}
+      UPLOAD_PATH: ${UPLOAD_PATH:-./uploads/}
+      MAX_FILE_SIZE: ${MAX_FILE_SIZE:-10485760}
+      ALLOWED_FILE_TYPES: ${ALLOWED_FILE_TYPES:-image/jpeg,image/png,image/gif,image/webp}
+      RATE_LIMIT_WINDOW_MS: ${RATE_LIMIT_WINDOW_MS:-900000}
+      RATE_LIMIT_MAX_REQUESTS: ${RATE_LIMIT_MAX_REQUESTS:-100}
+      ORANGE_MONEY_MODE: ${ORANGE_MONEY_MODE:-development}
+      ORANGE_MONEY_API_URL: ${ORANGE_MONEY_API_URL}
+      ORANGE_MONEY_USERNAME: ${ORANGE_MONEY_USERNAME}
+      ORANGE_MONEY_PASSWORD: ${ORANGE_MONEY_PASSWORD}
+      ORANGE_MONEY_MERCHANT_NUMBER: ${ORANGE_MONEY_MERCHANT_NUMBER}
+      ORANGE_MONEY_WEBHOOK_SECRET: ${ORANGE_MONEY_WEBHOOK_SECRET}
+      ORANGE_MONEY_CALLBACK_URL: ${ORANGE_MONEY_CALLBACK_URL}
+      ORANGE_MONEY_RETURN_URL: ${ORANGE_MONEY_RETURN_URL}
+      ORANGE_MONEY_CANCEL_URL: ${ORANGE_MONEY_CANCEL_URL}
+      PAYMENT_MOCK_MODE: ${PAYMENT_MOCK_MODE:-true}
+      PAYMENT_AUTO_CONFIRM_DELAY: ${PAYMENT_AUTO_CONFIRM_DELAY:-5000}
+      FRAUD_DETECTION_ENABLED: ${FRAUD_DETECTION_ENABLED:-true}
+      MAX_FAILED_LOGIN_ATTEMPTS: ${MAX_FAILED_LOGIN_ATTEMPTS:-5}
+      LOCKOUT_DURATION_MINUTES: ${LOCKOUT_DURATION_MINUTES:-30}
+      SESSION_TIMEOUT_HOURS: ${SESSION_TIMEOUT_HOURS:-24}
+      EMAIL_SERVICE: ${EMAIL_SERVICE:-smtp}
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_SECURE: ${SMTP_SECURE:-false}
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASSWORD: ${SMTP_PASSWORD}
+      EMAIL_FROM: ${EMAIL_FROM}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3001}
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
+      ADMIN_PHONE: ${ADMIN_PHONE}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      LOG_FILE: ${LOG_FILE:-./logs/app.log}
+      CRON_ANALYTICS_SCHEDULE: ${CRON_ANALYTICS_SCHEDULE:-0 1 * * *}
+      CRON_CLEANUP_SCHEDULE: ${CRON_CLEANUP_SCHEDULE:-0 2 * * *}
+      CRON_PAYMENT_CLEANUP_SCHEDULE: ${CRON_PAYMENT_CLEANUP_SCHEDULE:-0 3 * * *}
+    volumes:
+      - backend_uploads:/app/uploads
+      - backend_logs:/app/logs
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - ecommerce-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  backend_uploads:
+    driver: local
+  backend_logs:
+    driver: local
+
+networks:
+  ecommerce-network:
+    driver: bridge
