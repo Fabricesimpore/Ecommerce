@@ -1,35 +1,144 @@
 // Mock Auth Service
-const mockAuthService = {
-  login: jest.fn().mockResolvedValue({
-    user: {
-      id: 'user-123',
+class MockAuthService {
+  static async register(userData) {
+    const mockUser = {
+      id: `user-${Date.now()}`,
+      email: userData.email,
+      phone: userData.phone,
+      role: userData.role || 'buyer',
+      firstName: userData.firstName,
+      lastName: userData.lastName,
+      businessName: userData.businessName,
+      status: 'active',
+      created_at: new Date(),
+      updated_at: new Date()
+    };
+
+    return {
+      user: mockUser,
+      tokens: {
+        accessToken: `mock-access-token-${mockUser.role}`,
+        refreshToken: `mock-refresh-token-${mockUser.role}`
+      }
+    };
+  }
+
+  static async login(credentials) {
+    const { email, phone, password } = credentials;
+    
+    // Mock successful login for known test users
+    let mockUser;
+    if (email === 'buyer@test.com' || phone === '+22670000001') {
+      mockUser = {
+        id: '123e4567-e89b-12d3-a456-426614174000',
+        email: 'buyer@test.com',
+        phone: '+22670000001',
+        role: 'buyer',
+        firstName: 'Test',
+        lastName: 'Buyer',
+        status: 'active'
+      };
+    } else if (email === 'vendor@test.com' || phone === '+22670000002') {
+      mockUser = {
+        id: '123e4567-e89b-12d3-a456-426614174001',
+        email: 'vendor@test.com',
+        phone: '+22670000002',
+        role: 'vendor',
+        firstName: 'Test',
+        lastName: 'Vendor',
+        businessName: 'Test Store',
+        status: 'active'
+      };
+    } else if (email === 'admin@test.com' || phone === '+22670000003') {
+      mockUser = {
+        id: '123e4567-e89b-12d3-a456-426614174002',
+        email: 'admin@test.com',
+        phone: '+22670000003',
+        role: 'admin',
+        firstName: 'Test',
+        lastName: 'Admin',
+        status: 'active'
+      };
+    } else {
+      throw new Error('Invalid credentials');
+    }
+
+    // Check password
+    if (password !== 'password123') {
+      throw new Error('Invalid credentials');
+    }
+
+    return {
+      user: mockUser,
+      tokens: {
+        accessToken: `mock-access-token-${mockUser.role}`,
+        refreshToken: `mock-refresh-token-${mockUser.role}`
+      }
+    };
+  }
+
+  static async refreshToken(refreshToken) {
+    // Mock token refresh
+    let role = 'buyer';
+    if (refreshToken.includes('vendor')) role = 'vendor';
+    if (refreshToken.includes('admin')) role = 'admin';
+
+    return {
+      accessToken: `mock-access-token-${role}`,
+      refreshToken: `mock-refresh-token-${role}`
+    };
+  }
+
+  static async logout(refreshToken) {
+    return { success: true, message: 'Logout successful' };
+  }
+
+  static async verifyToken(token) {
+    if (token.includes('buyer')) {
+      return {
+        userId: '123e4567-e89b-12d3-a456-426614174000',
+        email: 'buyer@test.com',
+        role: 'buyer'
+      };
+    }
+    if (token.includes('vendor')) {
+      return {
+        userId: '123e4567-e89b-12d3-a456-426614174001',
+        email: 'vendor@test.com',
+        role: 'vendor'
+      };
+    }
+    if (token.includes('admin')) {
+      return {
+        userId: '123e4567-e89b-12d3-a456-426614174002',
+        email: 'admin@test.com',
+        role: 'admin'
+      };
+    }
+    return {
+      userId: 'user-123',
       email: 'test@example.com',
-      role: 'buyer',
-      firstName: 'Test',
-      lastName: 'User'
-    },
-    accessToken: 'mock-access-token',
-    refreshToken: 'mock-refresh-token'
-  }),
+      role: 'buyer'
+    };
+  }
 
-  register: jest.fn().mockResolvedValue({
-    user: {
-      id: 'user-123',
-      email: 'test@example.com',
-      role: 'buyer',
-      firstName: 'Test',
-      lastName: 'User'
-    },
-    accessToken: 'mock-access-token',
-    refreshToken: 'mock-refresh-token'
-  }),
+  static async changePassword(userId, oldPassword, newPassword) {
+    if (oldPassword !== 'password123') {
+      throw new Error('Current password is incorrect');
+    }
+    
+    return {
+      success: true,
+      message: 'Password changed successfully'
+    };
+  }
 
-  refreshToken: jest.fn().mockResolvedValue({
-    accessToken: 'mock-new-access-token',
-    refreshToken: 'mock-new-refresh-token'
-  }),
+  static async resetPassword(email) {
+    return {
+      success: true,
+      message: 'Password reset email sent'
+    };
+  }
+}
 
-  logout: jest.fn().mockResolvedValue(true)
-};
-
-module.exports = mockAuthService;
+module.exports = MockAuthService;

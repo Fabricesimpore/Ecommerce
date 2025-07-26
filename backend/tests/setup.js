@@ -31,10 +31,25 @@ jest.mock('jsonwebtoken', () => ({
 }));
 
 // Mock all services
+jest.mock('../src/services/auth.service');
 jest.mock('../src/services/product.service');
 jest.mock('../src/services/order.service');
 jest.mock('../src/services/delivery.service');
 jest.mock('../src/services/payment.service');
+
+// Mock axios for API calls
+jest.mock('axios', () => ({
+  default: {
+    post: jest.fn().mockResolvedValue({ data: { success: true } }),
+    get: jest.fn().mockResolvedValue({ data: { success: true } }),
+    put: jest.fn().mockResolvedValue({ data: { success: true } }),
+    delete: jest.fn().mockResolvedValue({ data: { success: true } })
+  },
+  post: jest.fn().mockResolvedValue({ data: { success: true } }),
+  get: jest.fn().mockResolvedValue({ data: { success: true } }),
+  put: jest.fn().mockResolvedValue({ data: { success: true } }),
+  delete: jest.fn().mockResolvedValue({ data: { success: true } })
+}));
 
 // Mock bcrypt for consistent password hashing
 jest.mock('bcrypt', () => ({
