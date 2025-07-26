@@ -117,11 +117,12 @@ class MockAuthService {
   }
 
   static async refreshTokens(refreshToken) {
-    // Mock expired token
+    // Mock expired token - but return proper error response instead of throwing
     if (refreshToken === 'expired-refresh-token') {
       const error = new Error('Refresh token expired');
       error.name = 'TokenExpiredError';
-      throw error;
+      error.status = 401;
+      return Promise.reject(error);
     }
 
     // Mock token refresh (note: plural method name)

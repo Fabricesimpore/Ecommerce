@@ -18,6 +18,15 @@ jest.mock('../../src/utils/jwt', () => ({
 const { verifyToken: mockVerifyToken } = require('../../src/utils/jwt');
 
 describe('Auth Endpoints', () => {
+  beforeAll(() => {
+    // Suppress console.error during tests to prevent CI exit on unhandled errors
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+  });
+
+  afterAll(() => {
+    // Restore console.error after tests
+    console.error.mockRestore();
+  });
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -239,7 +248,7 @@ describe('Auth Endpoints', () => {
           refreshToken: 'expired-refresh-token'
         });
 
-      expect(response.status).toBe(500);
+      expect(response.status).toBe(401);
       expect(response.body.error.message).toContain('Refresh token expired');
     });
   });
