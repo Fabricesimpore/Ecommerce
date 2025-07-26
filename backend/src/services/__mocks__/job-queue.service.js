@@ -194,9 +194,9 @@ class MockJobQueueService {
   // Job implementations with mocked database calls
   static async runAnalyticsCalculation() {
     const mockAnalyticsService = require('../analytics.service');
-    const result = await mockAnalyticsService.calculateDailyStats();
+    await mockAnalyticsService.calculateDailyStats();
     console.log('Analytics calculation placeholder - would calculate daily metrics');
-    return result || 'Calculated 5 statistics';
+    return 'Calculated 5 statistics';
   }
 
   static async runPaymentCleanup() {
