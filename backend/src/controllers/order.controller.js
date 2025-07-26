@@ -1,4 +1,5 @@
 const OrderService = require('../services/order.service');
+const paymentService = require('../services/payment.service');
 
 class OrderController {
   static async createOrder(req, res, next) {
@@ -286,6 +287,92 @@ class OrderController {
         success: true,
         message: 'Payment status updated successfully',
         data: { order: order.toJSON() }
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  // POST /api/orders/:id/pay
+  static async initiateOrderPayment(req, res, next) {
+    try {
+      const { id } = req.params;
+      const { 
+        paymentMethod, 
+        customerPhone, 
+        customerName, 
+        customerEmail, 
+        otpCode 
+      } = req.body;
+
+      // Validate required fields
+      if (!paymentMethod) {
+        return res.status(400).json({
+          success: false,
+          message: 'Payment method is required'
+        });
+      }
+
+      if (paymentMethod === 'orange_money' && !customerPhone) {
+        return res.status(400).json({
+          success: false,
+          message: 'Customer phone number is required for Orange Money payments'
+        });
+      }
+
+      // Get order details
+      const order = await OrderService.getOrder(id, req.userId, req.user.role);
+      
+      if (!order) {
+        return res.status(404).json({
+          success: false,
+          message: 'Order not found'
+        });
+      }
+
+      // Check if order can be paid
+      if (order.paymentStatus === 'paid') {
+        return res.status(400).json({
+          success: false,
+          message: 'Order is already paid'
+        });
+      }
+
+      if (order.status === 'cancelled') {
+        return res.status(400).json({
+          success: false,
+          message: 'Cannot pay for cancelled order'
+        });
+      }
+
+      // Prepare payment data
+      const paymentData = {
+        orderId: order.id,
+        paymentMethod,
+        customerPhone: customerPhone || req.user.phone,
+        customerName: customerName || `${req.user.firstName} ${req.user.lastName}`,
+        customerEmail: customerEmail || req.user.email,
+        otpCode,
+        userId: req.user.id,
+        ipAddress: req.ip,
+        userAgent: req.get('User-Agent')
+      };
+
+      // Initiate payment
+      const result = await paymentService.initiatePayment(paymentData);
+
+      res.status(201).json({
+        success: true,
+        message: 'Payment initiated successfully',
+        data: {
+          order: {
+            id: order.id,
+            orderNumber: order.orderNumber,
+            totalAmount: order.totalAmount,
+            currency: order.currency
+          },
+          payment: result
+        }
       });
     } catch (error) {
       next(error);

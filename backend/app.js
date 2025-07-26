@@ -13,7 +13,7 @@ const vendorRoutes = require('./src/routes/vendor.routes');
 const cartRoutes = require('./src/routes/cart.routes');
 const orderRoutes = require('./src/routes/order.routes');
 const deliveryRoutes = require('./src/routes/delivery.routes');
-// const paymentRoutes = require('./src/routes/payment.routes');
+const paymentRoutes = require('./src/routes/payment.routes');
 
 // Import middleware
 // const errorMiddleware = require('./src/middlewares/error.middleware');
@@ -79,7 +79,7 @@ app.use('/api/vendors', vendorRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/delivery', deliveryRoutes);
-// app.use('/api/payments', paymentRoutes);
+app.use('/api/payments', paymentRoutes);
 
 // 404 handler
 app.use((req, res) => {

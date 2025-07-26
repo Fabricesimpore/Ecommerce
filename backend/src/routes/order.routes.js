@@ -18,6 +18,9 @@ router.get('/:id', OrderController.getOrder);
 router.put('/:id/status', OrderController.updateOrderStatus);
 router.put('/:id/cancel', OrderController.cancelOrder);
 
+// Order payment
+router.post('/:id/pay', OrderController.initiateOrderPayment);
+
 // Order tracking (can be accessed with order number)
 router.get('/track/:orderNumber', OrderController.trackOrder);
 
