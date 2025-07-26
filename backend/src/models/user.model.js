@@ -263,6 +263,33 @@ class User {
     return rows.map(row => new User(row));
   }
 
+  static async getByRole(role, options = {}) {
+    const { status = null, limit = 50, offset = 0 } = options;
+    
+    let query = 'SELECT * FROM users WHERE role = $1';
+    const values = [role];
+    let paramCount = 1;
+
+    if (status) {
+      paramCount++;
+      query += ` AND status = $${paramCount}`;
+      values.push(status);
+    }
+
+    query += ' ORDER BY created_at DESC';
+    
+    paramCount++;
+    query += ` LIMIT $${paramCount}`;
+    values.push(limit);
+    
+    paramCount++;
+    query += ` OFFSET $${paramCount}`;
+    values.push(offset);
+
+    const { rows } = await db.query(query, values);
+    return rows.map(row => new User(row));
+  }
+
   toJSON() {
     const { password, ...userWithoutPassword } = this;
     return userWithoutPassword;

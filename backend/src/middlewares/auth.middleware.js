@@ -152,10 +152,62 @@ const requireAdmin = (req, res, next) => {
   next();
 };
 
+const requireDriver = (req, res, next) => {
+  if (!req.user) {
+    return res.status(401).json({
+      success: false,
+      message: 'Authentication required'
+    });
+  }
+
+  if (req.user.role !== 'driver') {
+    return res.status(403).json({
+      success: false,
+      message: 'Driver access required'
+    });
+  }
+
+  if (req.user.status !== 'active') {
+    return res.status(403).json({
+      success: false,
+      message: 'Driver account must be active'
+    });
+  }
+
+  next();
+};
+
+const requireBuyer = (req, res, next) => {
+  if (!req.user) {
+    return res.status(401).json({
+      success: false,
+      message: 'Authentication required'
+    });
+  }
+
+  if (req.user.role !== 'buyer') {
+    return res.status(403).json({
+      success: false,
+      message: 'Buyer access required'
+    });
+  }
+
+  if (req.user.status !== 'active') {
+    return res.status(403).json({
+      success: false,
+      message: 'Account must be active'
+    });
+  }
+
+  next();
+};
+
 module.exports = {
   authenticate,
   authorize,
   optionalAuth,
   requireVendor,
-  requireAdmin
+  requireAdmin,
+  requireDriver,
+  requireBuyer
 };

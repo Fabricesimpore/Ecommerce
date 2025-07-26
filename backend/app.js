@@ -10,7 +10,9 @@ require('dotenv').config();
 const authRoutes = require('./src/routes/auth.routes');
 const productRoutes = require('./src/routes/product.routes');
 const vendorRoutes = require('./src/routes/vendor.routes');
-// const orderRoutes = require('./src/routes/order.routes');
+const cartRoutes = require('./src/routes/cart.routes');
+const orderRoutes = require('./src/routes/order.routes');
+const deliveryRoutes = require('./src/routes/delivery.routes');
 // const paymentRoutes = require('./src/routes/payment.routes');
 
 // Import middleware
@@ -62,7 +64,9 @@ app.get('/api', (req, res) => {
       auth: '/api/auth',
       products: '/api/products', 
       vendors: '/api/vendors',
+      cart: '/api/cart',
       orders: '/api/orders',
+      delivery: '/api/delivery',
       payments: '/api/payments'
     }
   });
@@ -72,7 +76,9 @@ app.get('/api', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/vendors', vendorRoutes);
-// app.use('/api/orders', orderRoutes);
+app.use('/api/cart', cartRoutes);
+app.use('/api/orders', orderRoutes);
+app.use('/api/delivery', deliveryRoutes);
 // app.use('/api/payments', paymentRoutes);
 
 // 404 handler
