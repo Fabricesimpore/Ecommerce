@@ -73,6 +73,11 @@ describe('Job Queue Service', () => {
     if (JobQueueService.setMockDb) {
       JobQueueService.setMockDb(mockDb);
     }
+    
+    // Set the mock event logger in the service
+    if (JobQueueService.setEventLogger) {
+      JobQueueService.setEventLogger(mockEventLogger);
+    }
   });
 
   afterEach(() => {

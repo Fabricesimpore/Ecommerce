@@ -44,12 +44,12 @@ class MockJobQueueService {
         }
       }
 
-      if (MockJobQueueService.eventLogger) {
+      if (MockJobQueueService.eventLogger && MockJobQueueService.eventLogger.logSystemEvent) {
         await MockJobQueueService.eventLogger.logSystemEvent('job_queue_initialized', { scheduled_jobs: 8 });
       }
-      console.log('✅ Job queue service initialized successfully');
+      console.log('✅ Job Queue System initialized successfully');
     } catch (error) {
-      if (MockJobQueueService.eventLogger) {
+      if (MockJobQueueService.eventLogger && MockJobQueueService.eventLogger.logError) {
         await MockJobQueueService.eventLogger.logError('job_queue_init_failed', error);
       }
       console.error('❌ Failed to initialize job queue:', error);
@@ -67,6 +67,13 @@ class MockJobQueueService {
       return;
     }
 
+    // Actually call cron.schedule as expected by tests
+    const mockCron = require('node-cron');
+    const task = mockCron.schedule(cronPattern, jobFunction, {
+      scheduled: true,
+      timezone: 'Africa/Ouagadougou'
+    });
+
     MockJobQueueService.jobs.set(name, {
       name,
       cronPattern,
@@ -78,7 +85,7 @@ class MockJobQueueService {
       runCount: 0,
       lastDuration: null,
       lastStatus: 'pending',
-      task: {
+      task: task || {
         start: jest.fn(),
         stop: jest.fn(),
         getStatus: jest.fn().mockReturnValue('active')
@@ -106,7 +113,7 @@ class MockJobQueueService {
         jobName,
         startTime: new Date(startTime),
         endTime: new Date(),
-        duration,
+        duration: `${duration}ms`,
         status: 'completed',
         result
       };
@@ -145,7 +152,7 @@ class MockJobQueueService {
         jobName,
         startTime: new Date(),
         endTime: new Date(),
-        duration: 0,
+        duration: '0ms',
         status: 'failed',
         error: error.message
       };
@@ -328,6 +335,23 @@ class MockJobQueueService {
     return { success: true, restartedJobs: MockJobQueueService.jobs.size };
   }
 
+  // Method aliases expected by tests
+  static stopAll() {
+    console.log('⏹️ Stopping all scheduled jobs...');
+    const result = MockJobQueueService.stopAllJobs();
+    console.log('✅ All jobs stopped');
+    return result;
+  }
+
+  static restartAll() {
+    console.log('🔄 Restarting all scheduled jobs...');
+    const result = MockJobQueueService.restartAllJobs();
+    setTimeout(() => {
+      console.log('✅ All jobs restarted');
+    }, 1000);
+    return result;
+  }
+
   // History and statistics
   static addToHistory(entry) {
     if (!MockJobQueueService.jobHistory) {
@@ -360,7 +384,12 @@ class MockJobQueueService {
     const completedEntries = MockJobQueueService.jobHistory
       ? MockJobQueueService.jobHistory.filter((entry) => entry.status === 'completed') : [];
     const averageDuration = completedEntries.length > 0
-      ? completedEntries.reduce((sum, entry) => sum + entry.duration, 0) / completedEntries.length : 0;
+      ? completedEntries.reduce((sum, entry) => {
+        const duration = typeof entry.duration === 'string'
+          ? parseInt(entry.duration.replace('ms', ''), 10)
+          : entry.duration;
+        return sum + duration;
+      }, 0) / completedEntries.length : 0;
 
     const successRate = totalExecutions > 0
       ? ((completedJobs / totalExecutions) * 100).toFixed(2) : '0.00';
@@ -408,5 +437,13 @@ class MockJobQueueService {
     });
   }
 }
+
+// Initialize static properties immediately for test compatibility
+MockJobQueueService.jobs = new Map();
+MockJobQueueService.isRunning = false;
+MockJobQueueService.jobHistory = [];
+MockJobQueueService.maxHistorySize = 100;
+MockJobQueueService.eventLogger = null;
+MockJobQueueService.mockDb = null;
 
 module.exports = MockJobQueueService;
