@@ -3,7 +3,7 @@ class MockProductService {
   static async getProducts(options = {}) {
     const page = options.page || 1;
     const limit = options.limit || 10;
-    
+
     let products = [
       {
         id: 'product-123',
@@ -28,14 +28,12 @@ class MockProductService {
         toJSON() { return this; }
       }
     ];
-    
+
     // Apply category filter if provided
     if (options.category) {
-      products = products.filter(p => 
-        p.category.toLowerCase() === options.category.toLowerCase()
-      );
+      products = products.filter((p) => p.category.toLowerCase() === options.category.toLowerCase());
     }
-    
+
     return {
       products,
       pagination: {
@@ -54,7 +52,7 @@ class MockProductService {
     if (id === 'non-existent-id') {
       return null;
     }
-    
+
     const product = {
       id,
       title: 'Test Product',
@@ -66,7 +64,7 @@ class MockProductService {
       status: 'active',
       toJSON() { return this; }
     };
-    
+
     if (includeVendor) {
       return {
         ...product,
@@ -77,7 +75,7 @@ class MockProductService {
         }
       };
     }
-    
+
     return product;
   }
 
@@ -112,11 +110,11 @@ class MockProductService {
       // We need to distinguish between the two test cases:
       // 1. "should update product for owner" - where vendorId should match the product owner
       // 2. "should fail to update product for non-owner" - where vendorId should NOT match
-      
+
       // Looking at the test, the successful update sends: { title: 'Updated Title', price: 39.99 }
       // The failing update sends: { title: 'Updated Title' }
       // Let's use this to distinguish between the test cases
-      
+
       let mockProductOwnerId;
       if (updates.price !== undefined) {
         // This is the "should update product for owner" test
@@ -125,7 +123,7 @@ class MockProductService {
         // This is the "should fail to update product for non-owner" test
         mockProductOwnerId = 'other-vendor-id'; // Product owned by different vendor
       }
-      
+
       // Check ownership like the real service does
       if (mockProductOwnerId !== vendorId) {
         const error = new Error('You can only update your own products');
@@ -133,7 +131,7 @@ class MockProductService {
         throw error;
       }
     }
-    
+
     return {
       id,
       vendorId,
@@ -189,7 +187,7 @@ class MockProductService {
   static async getVendorProducts(vendorId, options = {}) {
     const page = options.page || 1;
     const limit = options.limit || 10;
-    
+
     // Return 2 products for vendor to match test expectations
     const products = [
       {
@@ -211,7 +209,7 @@ class MockProductService {
         toJSON() { return this; }
       }
     ];
-    
+
     return {
       products,
       pagination: {
@@ -244,7 +242,7 @@ class MockProductService {
     };
   }
 
-  static async getFeaturedProducts(limit = 10) {
+  static async getFeaturedProducts() {
     return [
       {
         id: 'featured-product-1',

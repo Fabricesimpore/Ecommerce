@@ -66,8 +66,8 @@ const mockJwt = {
   }),
 
   verifyToken: jest.fn().mockImplementation((token, isRefreshToken = false) => {
-    console.log('DEBUG: JWT mock verifyToken called with token:', token?.substring(0, 20) + '...');
-    
+    console.log('DEBUG: JWT mock verifyToken called with token:', `${token?.substring(0, 20)}...`);
+
     // Handle the valid-jwt-token from tests
     if (token === 'valid-jwt-token') {
       console.log('DEBUG: Returning valid-jwt-token user');
@@ -77,7 +77,7 @@ const mockJwt = {
         role: 'buyer'
       };
     }
-    
+
     // Handle real JWT tokens by decoding them (mocking successful verification)
     if (token.includes('.')) {
       console.log('DEBUG: Processing real JWT token');
@@ -105,7 +105,7 @@ const mockJwt = {
         // If decode fails, fall through to pattern matching
       }
     }
-    
+
     // Use same logic as verifyAccessToken for other tokens
     if (token.includes('buyer')) {
       return {
@@ -128,7 +128,7 @@ const mockJwt = {
         role: 'admin'
       };
     }
-    
+
     // Default fallback
     return {
       userId: 'user-123',

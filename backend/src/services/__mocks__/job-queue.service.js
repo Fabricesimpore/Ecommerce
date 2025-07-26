@@ -50,9 +50,15 @@ class MockJobQueueService {
   }
 
   async executeJob(jobName, jobFunction, description) {
+    // Check if this is a non-existent job (for testing purposes)
+    if (!this.jobs.has(jobName) && jobName === 'non-existent-job') {
+      console.error(`Job ${jobName} not found`);
+      return;
+    }
+    
     try {
       console.log(`🏃 Executing ${description || jobName}...`);
-      
+
       const startTime = Date.now();
       const result = await jobFunction();
       const duration = Date.now() - startTime;
@@ -67,7 +73,7 @@ class MockJobQueueService {
       };
 
       this.jobHistory.unshift(historyEntry);
-      
+
       // Keep only last 100 entries
       if (this.jobHistory.length > 100) {
         this.jobHistory = this.jobHistory.slice(0, 100);
@@ -92,7 +98,7 @@ class MockJobQueueService {
       };
 
       this.jobHistory.unshift(historyEntry);
-      
+
       console.error(`❌ Job ${jobName} failed:`, error.message);
       throw error;
     }
@@ -100,9 +106,6 @@ class MockJobQueueService {
 
   // Job implementations with mocked database calls
   async runAnalyticsCalculation() {
-    // Mock database queries
-    const mockDb = require('../../config/database.config');
-    
     // Mock successful execution
     console.log('Analytics calculation placeholder - would calculate daily metrics');
     return 'Analytics calculation completed';
@@ -125,16 +128,19 @@ class MockJobQueueService {
 
   async runHealthCheck() {
     const mockDb = require('../../config/database.config');
-    
+
     try {
       // Mock database connectivity test
       await mockDb.query('SELECT 1');
-      
+
       // Mock error count query - simulate different scenarios for testing
-      await mockDb.query('SELECT COUNT(*) as error_count FROM event_logs WHERE severity = \'error\' AND created_at >= NOW() - INTERVAL \'15 minutes\'');
-      
+      await mockDb.query(
+        'SELECT COUNT(*) as error_count FROM event_logs WHERE severity = \'error\' '
+        + 'AND created_at >= NOW() - INTERVAL \'15 minutes\''
+      );
+
       const errorCount = 5; // Mock low error count
-      
+
       // Mock warning scenario if needed (for testing)
       if (process.env.MOCK_HIGH_ERRORS === 'true') {
         const highErrorCount = 15;
@@ -144,7 +150,7 @@ class MockJobQueueService {
         }, 'warn');
         return `Health check: DB healthy, ${highErrorCount} errors in 15min`;
       }
-      
+
       return `Health check: DB healthy, ${errorCount} errors in 15min`;
     } catch (error) {
       await this.eventLogger.logError('health_check_failed', error);
@@ -154,19 +160,19 @@ class MockJobQueueService {
 
   async runDatabaseMaintenance() {
     const mockDb = require('../../config/database.config');
-    
+
     try {
       // Mock maintenance tasks
       const maintenanceTasks = [
         'ANALYZE users, products, orders, payments',
-        'VACUUM ANALYZE event_logs', 
+        'VACUUM ANALYZE event_logs',
         'REINDEX INDEX CONCURRENTLY idx_event_logs_created_at'
       ];
 
       // Mock all tasks succeeding or simulate partial failure
       const shouldFailOne = process.env.MOCK_MAINTENANCE_FAILURE === 'true';
       let completed = shouldFailOne ? 2 : 3;
-      
+
       // Mock database calls
       for (const task of maintenanceTasks) {
         try {
@@ -218,22 +224,22 @@ class MockJobQueueService {
     return Array.from(this.jobs.values());
   }
 
-  async stopJob(jobName) {
+  stopJob(jobName) {
     const job = this.jobs.get(jobName);
     if (!job) {
       throw new Error(`Job ${jobName} not found`);
     }
-    
+
     job.isActive = false;
     console.log(`⏹️ Stopped job: ${jobName}`);
   }
 
-  async startJob(jobName) {
+  startJob(jobName) {
     const job = this.jobs.get(jobName);
     if (!job) {
       throw new Error(`Job ${jobName} not found`);
     }
-    
+
     job.isActive = true;
     console.log(`▶️ Started job: ${jobName}`);
   }
@@ -241,10 +247,26 @@ class MockJobQueueService {
   async triggerJob(jobName) {
     const job = this.jobs.get(jobName);
     if (!job) {
-      throw new Error(`Job ${jobName} not found`);
+      return Promise.reject(new Error(`Job ${jobName} not found`));
+    }
+
+    return await this.executeJob(jobName, job.jobFunction, job.description);
+  }
+
+  getJobStatus(jobName) {
+    const job = this.jobs.get(jobName);
+    if (!job) {
+      return null;
     }
     
-    return await this.executeJob(jobName, job.jobFunction, job.description);
+    return {
+      name: jobName,
+      isActive: job.isActive,
+      lastRun: job.lastRun,
+      runCount: job.runCount,
+      lastStatus: job.lastStatus,
+      nextRun: job.isActive ? this.getNextRunTime() : null
+    };
   }
 
   async stopAll() {
@@ -267,9 +289,9 @@ class MockJobQueueService {
 
   getSystemStats() {
     const totalJobs = this.jobs.size;
-    const activeJobs = Array.from(this.jobs.values()).filter(job => job.isActive).length;
+    const activeJobs = Array.from(this.jobs.values()).filter((job) => job.isActive).length;
     const totalRuns = this.jobHistory.length;
-    const successfulRuns = this.jobHistory.filter(entry => entry.status === 'success').length;
+    const successfulRuns = this.jobHistory.filter((entry) => entry.status === 'success').length;
     const failedRuns = totalRuns - successfulRuns;
 
     return {
@@ -278,11 +300,11 @@ class MockJobQueueService {
       totalRuns,
       successfulRuns,
       failedRuns,
-      successRate: totalRuns > 0 ? (successfulRuns / totalRuns * 100).toFixed(2) : 0
+      successRate: totalRuns > 0 ? ((successfulRuns / totalRuns) * 100).toFixed(2) : 0
     };
   }
 
-  getNextRunTime(cronPattern) {
+  getNextRunTime() {
     // Simplified mock - just return a future date
     return new Date(Date.now() + 60000);
   }

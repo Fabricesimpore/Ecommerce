@@ -1,4 +1,6 @@
 // Mock Cart class
+const mockCartStore = new Map();
+
 class MockCart {
   constructor(data) {
     this.id = data.id || `cart-${Date.now()}-${Math.random()}`;
@@ -10,7 +12,13 @@ class MockCart {
   }
 
   static async getByUserId(userId) {
-    return new MockCart({
+    // Return existing cart if available
+    if (mockCartStore.has(userId)) {
+      return mockCartStore.get(userId);
+    }
+    
+    // Create new cart with initial items
+    const cart = new MockCart({
       id: `cart-${userId}`,
       user_id: userId,
       items: [
@@ -25,6 +33,9 @@ class MockCart {
       created_at: new Date(),
       updated_at: new Date()
     });
+    
+    mockCartStore.set(userId, cart);
+    return cart;
   }
 
   static async findByUser(userId) {
@@ -60,7 +71,7 @@ class MockCart {
 
   static async addItem(userId, productId, quantity, options = {}) {
     const cart = await MockCart.getByUserId(userId);
-    
+
     const existingItem = cart.items.find((item) => item.productId === productId);
 
     if (existingItem) {
@@ -102,7 +113,7 @@ class MockCart {
 
   static async updateItem(userId, productId, quantity) {
     const cart = await MockCart.getByUserId(userId);
-    
+
     const item = cart.items.find((cartItem) => cartItem.productId === productId);
 
     if (item) {
@@ -171,7 +182,7 @@ class MockCart {
     const tax = subtotal * 0.1; // 10% tax
     const shipping = subtotal > 50 ? 0 : 5.99;
     const total = subtotal + tax + shipping;
-    
+
     return {
       subtotal,
       tax,
@@ -188,19 +199,16 @@ class MockCart {
         issues: ['Cart is empty']
       };
     }
-    
-    const unavailableItems = this.items.filter(item => {
-      // Mock some validation logic
-      return item.quantity > 10; // Mock inventory limit
-    });
-    
+
+    const unavailableItems = this.items.filter((item) => item.quantity > 10);
+
     if (unavailableItems.length > 0) {
       return {
         valid: false,
         issues: ['Some items are unavailable or have insufficient inventory']
       };
     }
-    
+
     return {
       valid: true,
       issues: []
@@ -238,6 +246,10 @@ class MockCart {
       created_at: this.created_at,
       updated_at: this.updated_at
     };
+  }
+  
+  static clearMockStore() {
+    mockCartStore.clear();
   }
 }
 

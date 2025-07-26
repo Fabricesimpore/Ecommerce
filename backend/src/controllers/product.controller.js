@@ -22,9 +22,14 @@ class ProductController {
 
       const product = await ProductService.getProduct(id, includeVendor);
 
+      let productData = null;
+      if (product) {
+        productData = product.toJSON ? product.toJSON() : product;
+      }
+
       res.status(200).json({
         success: true,
-        data: { product: product ? (product.toJSON ? product.toJSON() : product) : null }
+        data: { product: productData }
       });
     } catch (error) {
       next(error);

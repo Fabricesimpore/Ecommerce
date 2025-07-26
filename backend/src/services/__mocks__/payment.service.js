@@ -28,12 +28,14 @@ class MockPaymentService {
 
   // Initiate payment based on method
   async initiatePayment(paymentData) {
-    const { orderId, paymentMethod, customerPhone, customerName, customerEmail, userId, ipAddress, userAgent } = paymentData;
+    const {
+      orderId, paymentMethod, customerPhone, customerName, customerEmail, userId, ipAddress, userAgent
+    } = paymentData;
 
     // Get order model
     const Order = require('../../models/order.model');
     const order = await Order.findById(orderId);
-    
+
     if (!order) {
       throw new Error('Order not found');
     }
@@ -118,34 +120,31 @@ class MockPaymentService {
             paymentToken: `TOKEN_${Date.now()}`,
             message: 'OTP required for payment verification'
           };
-        } else if (otp === '1234') {
+        } if (otp === '1234') {
           // Valid OTP
-          await payment.updateStatus('processing', {
-            providerResponse: { transaction_id: `TXN_${Date.now()}` }
-          });
+          await payment.updateStatus('processing', { providerResponse: { transaction_id: `TXN_${Date.now()}` } });
           return {
             success: true,
             status: 'processing',
             paymentReference: payment.paymentReference,
             message: 'Payment processing with valid OTP'
           };
-        } else {
-          // Invalid OTP
-          await payment.updateStatus('failed', {
-            errorDetails: { reason: 'invalid_otp' },
-            providerResponse: { error: 'Invalid OTP' }
-          });
-          return {
-            success: false,
-            status: 'error',
-            message: 'Payment failed: Invalid OTP'
-          };
         }
+        // Invalid OTP
+        await payment.updateStatus('failed', {
+          errorDetails: { reason: 'invalid_otp' },
+          providerResponse: { error: 'Invalid OTP' }
+        });
+        return {
+          success: false,
+          status: 'error',
+          message: 'Payment failed: Invalid OTP'
+        };
 
       default:
         // Simulate successful payment
         await payment.updateStatus('processing', {
-          providerResponse: { 
+          providerResponse: {
             transaction_id: `TXN_${Date.now()}`,
             payment_url: `https://payment.orangemoney.com/${payment.id}`
           }
@@ -165,7 +164,7 @@ class MockPaymentService {
     if (this.mockMode) {
       return await this.processMockOrangeMoneyPayment(payment);
     }
-    
+
     // Real implementation would make API calls here
     throw new Error('Real Orange Money integration not implemented in test mode');
   }
@@ -173,9 +172,7 @@ class MockPaymentService {
   // Process cash on delivery payment
   async processCashOnDeliveryPayment(payment) {
     if (payment && payment.updateStatus) {
-      await payment.updateStatus('processing', {
-        notes: 'Cash on delivery payment - pending delivery completion'
-      });
+      await payment.updateStatus('processing', { notes: 'Cash on delivery payment - pending delivery completion' });
     }
 
     return {
@@ -215,13 +212,13 @@ class MockPaymentService {
   async makeOrangeMoneyRequest(method, endpoint, data = {}) {
     // In test environment, axios is mocked and the test sets up the mock behavior
     const axios = require('axios');
-    
+
     try {
       const config = {
         method,
         url: `${this.orangeMoneyConfig.apiUrl}${endpoint}`,
         headers: {
-          'Authorization': this.generateOrangeMoneyAuth(),
+          Authorization: this.generateOrangeMoneyAuth(),
           'Content-Type': 'application/json'
         },
         data
@@ -245,7 +242,7 @@ class MockPaymentService {
       .createHmac('sha256', this.orangeMoneyConfig.webhookSecret)
       .update(JSON.stringify(payload))
       .digest('hex');
-    
+
     // Use constant-time comparison to prevent timing attacks
     return crypto.timingSafeEqual(
       Buffer.from(signature, 'hex'),

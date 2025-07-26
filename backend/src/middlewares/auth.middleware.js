@@ -1,7 +1,6 @@
 const { verifyToken } = require('../utils/jwt');
 const User = require('../models/user.model');
 
-
 const authenticate = async (req, res, next) => {
   try {
     // Get token from header
