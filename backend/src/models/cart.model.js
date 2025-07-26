@@ -61,7 +61,7 @@ class Cart {
 
   static async addItem(userId, productId, quantity = 1) {
     const client = await db.getClient();
-    
+
     try {
       await client.query('BEGIN');
 
@@ -73,7 +73,7 @@ class Cart {
       // Get product details
       const productQuery = 'SELECT * FROM products WHERE id = $1 AND status = $2';
       const { rows: productRows } = await client.query(productQuery, [productId, 'active']);
-      
+
       if (!productRows.length) {
         throw new Error('Product not found or not available');
       }
@@ -95,7 +95,7 @@ class Cart {
       if (existingItems.length > 0) {
         // Update existing item
         const newQuantity = existingItems[0].quantity + quantity;
-        
+
         // Check inventory for new total quantity
         if (product.track_inventory && product.quantity < newQuantity && !product.allow_backorder) {
           throw new Error(`Only ${product.quantity} items available in stock`);
@@ -119,7 +119,7 @@ class Cart {
       }
 
       await client.query('COMMIT');
-      
+
       // Return updated cart
       return await Cart.getByUserId(userId);
     } catch (error) {
@@ -136,7 +136,7 @@ class Cart {
     }
 
     const client = await db.getClient();
-    
+
     try {
       await client.query('BEGIN');
 
@@ -149,7 +149,7 @@ class Cart {
         WHERE ci.id = $1 AND c.user_id = $2
       `;
       const { rows: itemRows } = await client.query(verifyQuery, [itemId, userId]);
-      
+
       if (!itemRows.length) {
         throw new Error('Cart item not found');
       }
@@ -171,7 +171,7 @@ class Cart {
       await client.query(updateQuery, [quantity, itemId]);
 
       await client.query('COMMIT');
-      
+
       return await Cart.getByUserId(userId);
     } catch (error) {
       await client.query('ROLLBACK');
@@ -190,9 +190,9 @@ class Cart {
       )
       RETURNING *
     `;
-    
+
     const { rows } = await db.query(query, [itemId, userId]);
-    
+
     if (!rows.length) {
       throw new Error('Cart item not found');
     }
@@ -207,7 +207,7 @@ class Cart {
         SELECT id FROM carts WHERE user_id = $1
       )
     `;
-    
+
     await db.query(query, [userId]);
     return await Cart.getByUserId(userId);
   }
@@ -222,13 +222,11 @@ class Cart {
       };
     }
 
-    const subtotal = this.items.reduce((sum, item) => {
-      return sum + (parseFloat(item.price) * item.quantity);
-    }, 0);
+    const subtotal = this.items.reduce((sum, item) => sum + (parseFloat(item.price) * item.quantity), 0);
 
     const itemCount = this.items.reduce((sum, item) => sum + item.quantity, 0);
-    
-    const uniqueVendors = [...new Set(this.items.map(item => item.vendorId))].length;
+
+    const uniqueVendors = [...new Set(this.items.map((item) => item.vendorId))].length;
 
     return {
       subtotal: parseFloat(subtotal.toFixed(2)),
@@ -247,13 +245,13 @@ class Cart {
     }
 
     // Check each item
-    for (const item of this.items) {
-      const product = item.product;
+    this.items.forEach((item) => {
+      const { product } = item;
 
       // Check if product is still active
       if (product.status !== 'active') {
         issues.push(`Product "${product.title}" is no longer available`);
-        continue;
+        return;
       }
 
       // Check inventory
@@ -262,7 +260,7 @@ class Cart {
           issues.push(`Only ${product.inventory.quantity} of "${product.title}" available`);
         }
       }
-    }
+    });
 
     return {
       valid: issues.length === 0,
@@ -272,11 +270,11 @@ class Cart {
 
   toJSON() {
     const totals = this.getTotals();
-    
+
     return {
       id: this.id,
       userId: this.userId,
-      items: this.items.map(item => ({
+      items: this.items.map((item) => ({
         id: item.id,
         productId: item.productId,
         vendorId: item.vendorId,

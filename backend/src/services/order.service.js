@@ -17,7 +17,7 @@ class OrderService {
     }
 
     // Prepare order data
-    const items = cart.items.map(item => ({
+    const items = cart.items.map((item) => ({
       productId: item.productId,
       quantity: item.quantity
     }));
@@ -64,11 +64,11 @@ class OrderService {
 
     if (userRole === 'vendor') {
       // Check if vendor has items in this order
-      const hasItems = order.items.some(item => item.vendorId === userId);
+      const hasItems = order.items.some((item) => item.vendorId === userId);
       if (!hasItems) {
         throw new Error('You can only view orders containing your products');
       }
-      
+
       // Return vendor-specific view
       return {
         ...order.toJSON(),
@@ -82,11 +82,10 @@ class OrderService {
   static async getUserOrders(userId, userRole, options = {}) {
     if (userRole === 'buyer') {
       return await Order.findByUser(userId, options);
-    } else if (userRole === 'vendor') {
+    } if (userRole === 'vendor') {
       return await Order.findByVendor(userId, options);
-    } else {
-      throw new Error('Invalid user role for order access');
     }
+    throw new Error('Invalid user role for order access');
   }
 
   static async updateOrderStatus(orderId, newStatus, userId, userRole) {
@@ -100,18 +99,18 @@ class OrderService {
       if (order.buyerId !== userId) {
         throw new Error('You can only update your own orders');
       }
-      
+
       // Buyers can only cancel orders
       if (newStatus !== 'cancelled') {
         throw new Error('Buyers can only cancel orders');
       }
     } else if (userRole === 'vendor') {
       // Vendors can only update orders containing their products
-      const hasItems = order.items.some(item => item.vendorId === userId);
+      const hasItems = order.items.some((item) => item.vendorId === userId);
       if (!hasItems) {
         throw new Error('You can only update orders containing your products');
       }
-      
+
       // Vendors can confirm and mark as processing
       const allowedStatuses = ['confirmed', 'processing'];
       if (!allowedStatuses.includes(newStatus)) {
@@ -137,7 +136,7 @@ class OrderService {
 
     if (userRole === 'vendor') {
       // Vendors can cancel orders containing their products if not yet shipped
-      const hasItems = order.items.some(item => item.vendorId === userId);
+      const hasItems = order.items.some((item) => item.vendorId === userId);
       if (!hasItems) {
         throw new Error('You can only cancel orders containing your products');
       }
@@ -158,7 +157,7 @@ class OrderService {
   static async getOrderStats(userId, userRole, period = 'month') {
     let dateFilter = '';
     const now = new Date();
-    
+
     if (period === 'week') {
       const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
       dateFilter = `AND o.created_at >= '${weekAgo.toISOString()}'`;
@@ -202,7 +201,7 @@ class OrderService {
 
     const db = require('../config/database.config');
     const { rows } = await db.query(query, params);
-    
+
     const stats = {
       totalOrders: parseInt(rows[0].total_orders),
       completedOrders: parseInt(rows[0].completed_orders),
@@ -220,8 +219,8 @@ class OrderService {
 
   static async getRecentOrders(userId, userRole, limit = 5) {
     const orders = await OrderService.getUserOrders(userId, userRole, { limit });
-    
-    return orders.map(order => ({
+
+    return orders.map((order) => ({
       id: order.id,
       orderNumber: order.orderNumber,
       totalAmount: order.totalAmount,
@@ -273,8 +272,8 @@ class OrderService {
 
     const db = require('../config/database.config');
     const { rows } = await db.query(query, values);
-    
-    return rows.map(row => ({
+
+    return rows.map((row) => ({
       ...new Order(row).toJSON(),
       buyer: row.buyer
     }));

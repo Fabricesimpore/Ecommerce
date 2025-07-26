@@ -1,7 +1,7 @@
-const Payment = require('../models/payment.model');
-const Order = require('../models/order.model');
 const crypto = require('crypto');
 const axios = require('axios');
+const Payment = require('../models/payment.model');
+const Order = require('../models/order.model');
 
 class PaymentService {
   constructor() {
@@ -18,7 +18,7 @@ class PaymentService {
     };
 
     this.mockMode = process.env.PAYMENT_MOCK_MODE === 'true';
-    this.autoConfirmDelay = parseInt(process.env.PAYMENT_AUTO_CONFIRM_DELAY) || 5000;
+    this.autoConfirmDelay = parseInt(process.env.PAYMENT_AUTO_CONFIRM_DELAY, 10) || 5000;
   }
 
   // Initiate payment process
@@ -145,25 +145,25 @@ class PaymentService {
           status: 'processing',
           message: 'Payment initiated successfully'
         };
-      } else {
-        await payment.updateStatus('failed', {
-          errorDetails: response,
-          gatewayResponse: response
-        });
-
-        throw new Error(response.message || 'Payment initiation failed');
       }
-    } catch (error) {
       await payment.updateStatus('failed', {
-        errorDetails: { error: error.message }
+        errorDetails: response,
+        gatewayResponse: response
       });
+
+      throw new Error(response.message || 'Payment initiation failed');
+    } catch (error) {
+      await payment.updateStatus('failed', { errorDetails: { error: error.message } });
       throw error;
     }
   }
 
   // Mock Orange Money payment for development
   async processMockOrangeMoneyPayment(payment, otpCode) {
-    console.log(`[MOCK] Processing Orange Money payment for ${payment.paymentReference}`);
+    if (process.env.NODE_ENV !== 'test') {
+      // eslint-disable-next-line no-console
+      console.log(`[MOCK] Processing Orange Money payment for ${payment.paymentReference}`);
+    }
 
     // Simulate different scenarios based on phone number
     const lastDigit = payment.customerPhone.slice(-1);
@@ -257,9 +257,7 @@ class PaymentService {
   // Process Cash on Delivery payment
   async processCashOnDeliveryPayment(payment) {
     // COD payments are confirmed manually by delivery driver
-    await payment.updateStatus('processing', {
-      gatewayResponse: { method: 'cash_on_delivery', status: 'pending_delivery' }
-    });
+    await payment.updateStatus('processing', { gatewayResponse: { method: 'cash_on_delivery', status: 'pending_delivery' } });
 
     return {
       success: true,
@@ -282,9 +280,7 @@ class PaymentService {
       currency: payment.currency
     };
 
-    await payment.updateStatus('processing', {
-      gatewayResponse: { method: 'bank_transfer', transferDetails }
-    });
+    await payment.updateStatus('processing', { gatewayResponse: { method: 'bank_transfer', transferDetails } });
 
     return {
       success: true,
@@ -467,7 +463,7 @@ class PaymentService {
     const url = `${this.orangeMoneyConfig.apiUrl}${endpoint}`;
     const headers = {
       'Content-Type': 'application/json',
-      'Authorization': this.generateOrangeMoneyAuth()
+      Authorization: this.generateOrangeMoneyAuth()
     };
 
     const config = {
@@ -536,7 +532,7 @@ class PaymentService {
   }
 
   // Refund payment
-  async refundPayment(paymentReference, refundAmount = null, reason = null, userId = null) {
+  async refundPayment(paymentReference, refundAmount = null, reason = null) {
     const payment = await Payment.findByReference(paymentReference);
     if (!payment) {
       throw new Error('Payment not found');

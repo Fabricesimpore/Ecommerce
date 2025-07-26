@@ -1,6 +1,14 @@
 const request = require('supertest');
 const app = require('../app');
 const db = require('../src/config/database.config');
+
+// Mock all model dependencies
+jest.mock('../src/models/user.model');
+jest.mock('../src/models/product.model');
+jest.mock('../src/models/order.model');
+jest.mock('../src/models/payment.model');
+jest.mock('../src/services/payment.service');
+
 const User = require('../src/models/user.model');
 const Product = require('../src/models/product.model');
 const Order = require('../src/models/order.model');

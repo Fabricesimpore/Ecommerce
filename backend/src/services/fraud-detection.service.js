@@ -15,7 +15,7 @@ class FraudDetectionService {
   // Main fraud detection method
   async analyzeTransaction(transactionData) {
     const startTime = Date.now();
-    
+
     try {
       const {
         userId,
@@ -94,7 +94,6 @@ class FraudDetectionService {
         shouldReview: fraudAnalysis.recommended_action === 'review',
         message: this.getActionMessage(fraudAnalysis.recommended_action, fraudAnalysis.risk_score)
       };
-
     } catch (error) {
       await this.eventLogger.logError('fraud_analysis_failed', error, {
         user_id: transactionData.userId,
@@ -102,7 +101,7 @@ class FraudDetectionService {
       });
 
       console.error('Fraud analysis error:', error);
-      
+
       // Return safe default in case of system error
       return {
         success: false,
@@ -125,7 +124,6 @@ class FraudDetectionService {
       await db.query(`
         SELECT update_user_behavior($1, $2, $3, $4, $5, $6, $7)
       `, [userId, sessionId, ipAddress, userAgent, deviceFingerprint, actionType, JSON.stringify(context)]);
-
     } catch (error) {
       console.error('User behavior update error:', error);
       // Don't throw - this is supplementary data
@@ -175,7 +173,6 @@ class FraudDetectionService {
       }
 
       return incidentId;
-
     } catch (error) {
       console.error('Create fraud incident error:', error);
       return null;
@@ -211,7 +208,6 @@ class FraudDetectionService {
       );
 
       console.log(`User ${userId} blocked due to fraud detection (Incident: ${incidentId})`);
-
     } catch (error) {
       console.error('Block user error:', error);
     }
@@ -248,7 +244,6 @@ class FraudDetectionService {
       });
 
       return result.rows[0].id;
-
     } catch (error) {
       console.error('Update IP reputation error:', error);
       throw error;
@@ -332,7 +327,7 @@ class FraudDetectionService {
 
       return {
         success: true,
-        incidents: rows.map(row => ({
+        incidents: rows.map((row) => ({
           id: row.id,
           incidentType: row.incident_type,
           userId: row.user_id,
@@ -355,9 +350,7 @@ class FraudDetectionService {
           userBlocked: row.user_blocked,
           automaticAction: row.automatic_action,
           resolutionNotes: row.resolution_notes,
-          resolvedBy: row.resolved_by ? {
-            name: `${row.resolver_first_name} ${row.resolver_last_name}`
-          } : null,
+          resolvedBy: row.resolved_by ? { name: `${row.resolver_first_name} ${row.resolver_last_name}` } : null,
           resolvedAt: row.resolved_at,
           createdAt: row.created_at,
           updatedAt: row.updated_at
@@ -368,7 +361,6 @@ class FraudDetectionService {
           hasMore: rows.length === limit
         }
       };
-
     } catch (error) {
       console.error('Get fraud incidents error:', error);
       throw new Error('Failed to retrieve fraud incidents');
@@ -429,7 +421,6 @@ class FraudDetectionService {
           resolvedAt: incident.resolved_at
         }
       };
-
     } catch (error) {
       console.error('Resolve fraud incident error:', error);
       throw error;
@@ -468,7 +459,6 @@ class FraudDetectionService {
 
         console.log(`User ${userId} unblocked after false positive incident ${incidentId}`);
       }
-
     } catch (error) {
       console.error('Consider unblock user error:', error);
     }
@@ -520,11 +510,11 @@ class FraudDetectionService {
           falsePositives: parseInt(overall.false_positives),
           avgRiskScore: parseFloat(overall.avg_risk_score) || 0,
           totalBlockedUsers: parseInt(overall.total_blocked_users),
-          accuracy: overall.total_incidents > 0 
+          accuracy: overall.total_incidents > 0
             ? ((overall.confirmed_fraud / overall.total_incidents) * 100).toFixed(2)
             : 0
         },
-        breakdown: rows.map(row => ({
+        breakdown: rows.map((row) => ({
           incidentType: row.incident_type,
           severity: row.severity,
           status: row.status,
@@ -534,7 +524,6 @@ class FraudDetectionService {
           automaticActions: parseInt(row.automatic_actions)
         }))
       };
-
     } catch (error) {
       console.error('Fraud statistics error:', error);
       throw new Error('Failed to get fraud statistics');
@@ -548,7 +537,7 @@ class FraudDetectionService {
 
       return {
         success: true,
-        dashboard: rows.map(row => ({
+        dashboard: rows.map((row) => ({
           date: row.incident_date,
           incidentType: row.incident_type,
           severity: row.severity,
@@ -559,7 +548,6 @@ class FraudDetectionService {
           usersBlocked: parseInt(row.users_blocked)
         }))
       };
-
     } catch (error) {
       console.error('Fraud dashboard error:', error);
       throw new Error('Failed to get fraud dashboard data');

@@ -1,22 +1,20 @@
-const validateRequest = (schema) => {
-  return (req, res, next) => {
-    const { error } = schema.validate(req.body, { abortEarly: false });
-    
-    if (error) {
-      const errors = error.details.map(detail => ({
-        field: detail.path.join('.'),
-        message: detail.message
-      }));
-      
-      return res.status(400).json({
-        success: false,
-        message: 'Validation failed',
-        errors
-      });
-    }
-    
-    next();
-  };
+const validateRequest = (schema) => (req, res, next) => {
+  const { error } = schema.validate(req.body, { abortEarly: false });
+
+  if (error) {
+    const errors = error.details.map((detail) => ({
+      field: detail.path.join('.'),
+      message: detail.message
+    }));
+
+    return res.status(400).json({
+      success: false,
+      message: 'Validation failed',
+      errors
+    });
+  }
+
+  next();
 };
 
 // Email validation regex
@@ -63,12 +61,11 @@ const authValidation = {
           throw new Error('Invalid email format');
         }
         return value.toLowerCase();
-      } else {
-        if (!value || !phoneRegex.test(value)) {
-          throw new Error('Invalid phone number');
-        }
-        return value;
       }
+      if (!value || !phoneRegex.test(value)) {
+        throw new Error('Invalid phone number');
+      }
+      return value;
     },
     password: (value) => {
       if (!value) {
@@ -83,7 +80,7 @@ const authValidation = {
 const validateRegister = (req, res, next) => {
   try {
     const { email, phone, password, role = 'buyer' } = req.body;
-    
+
     // Validate required fields
     if (!email || !phone || !password) {
       return res.status(400).json({
@@ -91,13 +88,13 @@ const validateRegister = (req, res, next) => {
         message: 'Email, phone, and password are required'
       });
     }
-    
+
     // Validate each field
     req.body.email = authValidation.register.email(email);
     req.body.phone = authValidation.register.phone(phone);
     req.body.password = authValidation.register.password(password);
     req.body.role = authValidation.register.role(role);
-    
+
     next();
   } catch (error) {
     return res.status(400).json({
@@ -111,7 +108,7 @@ const validateRegister = (req, res, next) => {
 const validateLogin = (req, res, next) => {
   try {
     const { email, phone, password } = req.body;
-    
+
     // Require either email or phone
     if (!email && !phone) {
       return res.status(400).json({
@@ -119,14 +116,14 @@ const validateLogin = (req, res, next) => {
         message: 'Email or phone number is required'
       });
     }
-    
+
     if (!password) {
       return res.status(400).json({
         success: false,
         message: 'Password is required'
       });
     }
-    
+
     // Validate fields
     if (email) {
       req.body.email = authValidation.login.emailOrPhone(email, true);
@@ -135,7 +132,7 @@ const validateLogin = (req, res, next) => {
       req.body.phone = authValidation.login.emailOrPhone(phone, false);
     }
     req.body.password = authValidation.login.password(password);
-    
+
     next();
   } catch (error) {
     return res.status(400).json({
@@ -149,17 +146,17 @@ const validateLogin = (req, res, next) => {
 const validateChangePassword = (req, res, next) => {
   try {
     const { currentPassword, newPassword } = req.body;
-    
+
     if (!currentPassword || !newPassword) {
       return res.status(400).json({
         success: false,
         message: 'Current password and new password are required'
       });
     }
-    
+
     // Validate new password format
     req.body.newPassword = authValidation.register.password(newPassword);
-    
+
     next();
   } catch (error) {
     return res.status(400).json({

@@ -101,7 +101,7 @@ class Payment {
   static async findByOrderId(orderId) {
     const query = 'SELECT * FROM payments WHERE order_id = $1 ORDER BY created_at DESC';
     const { rows } = await db.query(query, [orderId]);
-    return rows.map(row => new Payment(row));
+    return rows.map((row) => new Payment(row));
   }
 
   static async findByTransactionId(transactionId) {
@@ -112,13 +112,13 @@ class Payment {
 
   async updateStatus(newStatus, updateData = {}) {
     const allowedTransitions = {
-      'pending': ['processing', 'failed', 'cancelled', 'expired'],
-      'processing': ['completed', 'failed', 'cancelled'],
-      'completed': ['refunded'],
-      'failed': [],
-      'cancelled': [],
-      'refunded': [],
-      'expired': []
+      pending: ['processing', 'failed', 'cancelled', 'expired'],
+      processing: ['completed', 'failed', 'cancelled'],
+      completed: ['refunded'],
+      failed: [],
+      cancelled: [],
+      refunded: [],
+      expired: []
     };
 
     if (!allowedTransitions[this.status].includes(newStatus)) {
@@ -315,7 +315,7 @@ class Payment {
     query += ' GROUP BY payment_method, status ORDER BY payment_method, status';
 
     const { rows } = await db.query(query, values);
-    return rows.map(row => ({
+    return rows.map((row) => ({
       paymentMethod: row.payment_method,
       status: row.status,
       transactionCount: parseInt(row.transaction_count),
@@ -354,7 +354,7 @@ class Payment {
     `;
 
     const { rows } = await db.query(query, [this.id]);
-    return rows.map(row => ({
+    return rows.map((row) => ({
       oldStatus: row.old_status,
       newStatus: row.new_status,
       changedAt: row.changed_at,
@@ -406,10 +406,19 @@ class Payment {
     this.riskScore = Math.min(riskScore, 100);
     this.fraudFlags = flags;
 
+    let recommendation;
+    if (riskScore > 70) {
+      recommendation = 'block';
+    } else if (riskScore > 40) {
+      recommendation = 'review';
+    } else {
+      recommendation = 'approve';
+    }
+
     return {
       riskScore: this.riskScore,
       flags: this.fraudFlags,
-      recommendation: riskScore > 70 ? 'block' : riskScore > 40 ? 'review' : 'approve'
+      recommendation
     };
   }
 

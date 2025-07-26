@@ -90,20 +90,20 @@ class Product {
 
   static async findByVendor(vendorId, options = {}) {
     const { status = null, limit = 50, offset = 0 } = options;
-    
+
     let query = 'SELECT * FROM products WHERE vendor_id = $1';
     const values = [vendorId];
-    
+
     if (status) {
       query += ' AND status = $2';
       values.push(status);
     }
-    
-    query += ' ORDER BY created_at DESC LIMIT $' + (values.length + 1) + ' OFFSET $' + (values.length + 2);
+
+    query += ` ORDER BY created_at DESC LIMIT $${values.length + 1} OFFSET $${values.length + 2}`;
     values.push(limit, offset);
-    
+
     const { rows } = await db.query(query, values);
-    return rows.map(row => new Product(row));
+    return rows.map((row) => new Product(row));
   }
 
   static async findAll(options = {}) {
@@ -177,7 +177,8 @@ class Product {
     // Search filter
     if (search) {
       paramCount++;
-      query += ` AND to_tsvector('english', coalesce(title, '') || ' ' || coalesce(description, '')) @@ plainto_tsquery('english', $${paramCount})`;
+      query += ` AND to_tsvector('english', coalesce(title, '') || ' ' || coalesce(description, ''))
+        @@ plainto_tsquery('english', $${paramCount})`;
       values.push(search);
     }
 
@@ -191,13 +192,13 @@ class Product {
     paramCount++;
     query += ` LIMIT $${paramCount}`;
     values.push(limit);
-    
+
     paramCount++;
     query += ` OFFSET $${paramCount}`;
     values.push(offset);
 
     const { rows } = await db.query(query, values);
-    return rows.map(row => new Product(row));
+    return rows.map((row) => new Product(row));
   }
 
   static async count(options = {}) {
@@ -232,7 +233,8 @@ class Product {
 
     if (search) {
       paramCount++;
-      query += ` AND to_tsvector('english', coalesce(title, '') || ' ' || coalesce(description, '')) @@ plainto_tsquery('english', $${paramCount})`;
+      query += ` AND to_tsvector('english', coalesce(title, '') || ' ' || coalesce(description, ''))
+        @@ plainto_tsquery('english', $${paramCount})`;
       values.push(search);
     }
 
@@ -253,17 +255,17 @@ class Product {
     const values = [];
     let paramCount = 1;
 
-    Object.keys(updates).forEach(key => {
+    Object.keys(updates).forEach((key) => {
       if (allowedUpdates.includes(key)) {
         const dbKey = key.replace(/([A-Z])/g, '_$1').toLowerCase();
         updateFields.push(`${dbKey} = $${paramCount}`);
-        
+
         if (key === 'images' || key === 'dimensions' || key === 'metadata') {
           values.push(JSON.stringify(updates[key]));
         } else {
           values.push(updates[key]);
         }
-        
+
         paramCount++;
       }
     });
@@ -274,7 +276,7 @@ class Product {
 
     // Add published_at if status is changing to active
     if (updates.status === 'active' && this.status !== 'active' && !this.publishedAt) {
-      updateFields.push(`published_at = CURRENT_TIMESTAMP`);
+      updateFields.push('published_at = CURRENT_TIMESTAMP');
     }
 
     values.push(this.id);
@@ -301,8 +303,8 @@ class Product {
       return this;
     }
 
-    const newQuantity = operation === 'decrease' 
-      ? this.quantity - quantity 
+    const newQuantity = operation === 'decrease'
+      ? this.quantity - quantity
       : this.quantity + quantity;
 
     if (newQuantity < 0 && !this.allowBackorder) {

@@ -1,7 +1,7 @@
+const cron = require('node-cron');
 const EventLogger = require('./event-logger.service');
 const analyticsService = require('./analytics.service');
 const paymentService = require('./payment.service');
-const cron = require('node-cron');
 
 class JobQueueService {
   constructor() {
@@ -24,19 +24,26 @@ class JobQueueService {
     try {
       // Schedule recurring jobs
       this.scheduleRecurringJobs();
-      
+
       this.isRunning = true;
-      
-      await this.eventLogger.logSystemEvent('job_queue_initialized', {
-        scheduled_jobs: this.jobs.size
-      });
+
+      // Try to log initialization but don't fail if database is unavailable
+      try {
+        await this.eventLogger.logSystemEvent('job_queue_initialized', { scheduled_jobs: this.jobs.size });
+      } catch (logError) {
+        console.warn('Warning: Could not log job queue initialization (database unavailable)');
+      }
 
       console.log('✅ Job Queue System initialized successfully');
       console.log(`📋 Scheduled ${this.jobs.size} recurring jobs`);
-
     } catch (error) {
       console.error('❌ Failed to initialize job queue:', error);
-      await this.eventLogger.logError('job_queue_init_failed', error);
+      // Try to log error but don't fail if database is unavailable
+      try {
+        await this.eventLogger.logError('job_queue_init_failed', error);
+      } catch (logError) {
+        console.warn('Warning: Could not log job queue initialization error (database unavailable)');
+      }
       throw error;
     }
   }
@@ -95,7 +102,7 @@ class JobQueueService {
       await this.executeJob(name, jobFunction, description);
     }, {
       scheduled: true,
-      timezone: "Africa/Ouagadougou" // Burkina Faso timezone
+      timezone: 'Africa/Ouagadougou' // Burkina Faso timezone
     });
 
     this.jobs.set(name, {
@@ -158,7 +165,6 @@ class JobQueueService {
       });
 
       console.log(`✅ Job completed: ${jobName} (${duration}ms)`);
-
     } catch (error) {
       const duration = Date.now() - startTime;
       job.lastDuration = duration;
@@ -208,11 +214,11 @@ class JobQueueService {
 
   async runHealthCheck() {
     const db = require('../config/database.config');
-    
+
     try {
       // Test database connectivity
       await db.query('SELECT 1');
-      
+
       // Check recent error rates
       const errorQuery = `
         SELECT COUNT(*) as error_count
@@ -222,12 +228,6 @@ class JobQueueService {
       `;
       const { rows } = await db.query(errorQuery);
       const errorCount = parseInt(rows[0].error_count);
-      
-      const healthStatus = {
-        database: 'healthy',
-        errors_15min: errorCount,
-        timestamp: new Date().toISOString()
-      };
 
       // Log health check if there are errors
       if (errorCount > 10) {
@@ -238,7 +238,6 @@ class JobQueueService {
       }
 
       return `Health check: DB healthy, ${errorCount} errors in 15min`;
-
     } catch (error) {
       await this.eventLogger.logError('health_check_failed', error);
       return 'Health check failed - database connection error';
@@ -247,7 +246,7 @@ class JobQueueService {
 
   async runDatabaseMaintenance() {
     const db = require('../config/database.config');
-    
+
     try {
       // Analyze and vacuum tables for optimization
       const maintenanceTasks = [
@@ -256,18 +255,20 @@ class JobQueueService {
         'REINDEX INDEX CONCURRENTLY idx_event_logs_created_at'
       ];
 
+      const results = await Promise.allSettled(
+        maintenanceTasks.map((task) => db.query(task))
+      );
+
       let completed = 0;
-      for (const task of maintenanceTasks) {
-        try {
-          await db.query(task);
+      results.forEach((result, index) => {
+        if (result.status === 'fulfilled') {
           completed++;
-        } catch (error) {
-          console.warn(`Database maintenance task failed: ${task}`, error.message);
+        } else {
+          console.warn(`Database maintenance task failed: ${maintenanceTasks[index]}`, result.reason.message);
         }
-      }
+      });
 
       return `Database maintenance: ${completed}/${maintenanceTasks.length} tasks completed`;
-
     } catch (error) {
       console.error('Database maintenance error:', error);
       return 'Database maintenance failed';
@@ -323,7 +324,7 @@ class JobQueueService {
     }
 
     // Return all jobs
-    return Array.from(this.jobs.values()).map(job => ({
+    return Array.from(this.jobs.values()).map((job) => ({
       name: job.name,
       cronPattern: job.cronPattern,
       description: job.description,
@@ -341,7 +342,7 @@ class JobQueueService {
     return this.jobHistory
       .slice(-limit)
       .reverse() // Most recent first
-      .map(entry => ({
+      .map((entry) => ({
         ...entry,
         duration: `${entry.duration}ms`
       }));
@@ -387,10 +388,10 @@ class JobQueueService {
   // Stop all jobs
   stopAll() {
     console.log('⏹️ Stopping all scheduled jobs...');
-    
-    for (const [name, job] of this.jobs) {
+
+    this.jobs.forEach((job) => {
       job.task.stop();
-    }
+    });
 
     this.isRunning = false;
     console.log('✅ All jobs stopped');
@@ -399,21 +400,21 @@ class JobQueueService {
   // Restart all jobs
   restartAll() {
     console.log('🔄 Restarting all scheduled jobs...');
-    
+
     this.stopAll();
-    
+
     setTimeout(() => {
-      for (const [name, job] of this.jobs) {
+      this.jobs.forEach((job) => {
         job.task.start();
-      }
-      
+      });
+
       this.isRunning = true;
       console.log('✅ All jobs restarted');
     }, 1000);
   }
 
   // Helper methods
-  getNextRunTime(cronPattern) {
+  getNextRunTime() {
     try {
       // This is a simplified calculation - in production you'd use a proper cron parser
       return new Date(Date.now() + 24 * 60 * 60 * 1000); // Placeholder: next day
@@ -424,7 +425,7 @@ class JobQueueService {
 
   addToHistory(entry) {
     this.jobHistory.push(entry);
-    
+
     // Keep history size manageable
     if (this.jobHistory.length > this.maxHistorySize) {
       this.jobHistory = this.jobHistory.slice(-this.maxHistorySize);
@@ -435,13 +436,13 @@ class JobQueueService {
   getSystemStats() {
     const now = Date.now();
     const last24Hours = now - (24 * 60 * 60 * 1000);
-    
+
     const recentHistory = this.jobHistory.filter(
-      entry => entry.startTime.getTime() > last24Hours
+      (entry) => entry.startTime.getTime() > last24Hours
     );
 
-    const completedJobs = recentHistory.filter(entry => entry.status === 'completed');
-    const failedJobs = recentHistory.filter(entry => entry.status === 'failed');
+    const completedJobs = recentHistory.filter((entry) => entry.status === 'completed');
+    const failedJobs = recentHistory.filter((entry) => entry.status === 'failed');
 
     return {
       isRunning: this.isRunning,
@@ -451,7 +452,7 @@ class JobQueueService {
         totalExecutions: recentHistory.length,
         completedJobs: completedJobs.length,
         failedJobs: failedJobs.length,
-        successRate: recentHistory.length > 0 
+        successRate: recentHistory.length > 0
           ? ((completedJobs.length / recentHistory.length) * 100).toFixed(2)
           : 0,
         averageDuration: completedJobs.length > 0
@@ -469,7 +470,7 @@ const jobQueueService = new JobQueueService();
 if (process.env.NODE_ENV !== 'test') {
   // Initialize after a short delay to ensure all services are loaded
   setTimeout(() => {
-    jobQueueService.initialize().catch(error => {
+    jobQueueService.initialize().catch((error) => {
       console.error('Failed to initialize job queue service:', error);
     });
   }, 5000);

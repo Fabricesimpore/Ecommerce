@@ -1,5 +1,5 @@
-const db = require('../config/database.config');
 const bcrypt = require('bcrypt');
+const db = require('../config/database.config');
 
 class User {
   constructor(data) {
@@ -119,7 +119,7 @@ class User {
 
   async update(updates) {
     const allowedUpdates = [
-      'first_name', 'last_name', 'business_name', 
+      'first_name', 'last_name', 'business_name',
       'address_street', 'address_city', 'address_region',
       'address_lat', 'address_lng'
     ];
@@ -128,7 +128,7 @@ class User {
     const values = [];
     let paramCount = 1;
 
-    Object.keys(updates).forEach(key => {
+    Object.keys(updates).forEach((key) => {
       if (allowedUpdates.includes(key)) {
         updateFields.push(`${key} = $${paramCount}`);
         values.push(updates[key]);
@@ -189,10 +189,10 @@ class User {
   }
 
   isVerifiedVendor() {
-    return this.role === 'vendor' && 
-           this.status === 'active' && 
-           this.verification.identity &&
-           this.verification.businessLicense;
+    return this.role === 'vendor'
+           && this.status === 'active'
+           && this.verification.identity
+           && this.verification.businessLicense;
   }
 
   canManageProducts() {
@@ -205,7 +205,7 @@ class User {
     }
 
     const { businessName, nationalId } = vendorData;
-    
+
     if (!businessName || !nationalId) {
       throw new Error('Business name and national ID are required');
     }
@@ -226,11 +226,11 @@ class User {
   }
 
   static async getVendors(options = {}) {
-    const { 
-      status = 'active', 
+    const {
+      status = 'active',
       verified = null,
-      limit = 50, 
-      offset = 0 
+      limit = 50,
+      offset = 0
     } = options;
 
     let query = "SELECT * FROM users WHERE role = 'vendor'";
@@ -250,22 +250,22 @@ class User {
     }
 
     query += ' ORDER BY created_at DESC';
-    
+
     paramCount++;
     query += ` LIMIT $${paramCount}`;
     values.push(limit);
-    
+
     paramCount++;
     query += ` OFFSET $${paramCount}`;
     values.push(offset);
 
     const { rows } = await db.query(query, values);
-    return rows.map(row => new User(row));
+    return rows.map((row) => new User(row));
   }
 
   static async getByRole(role, options = {}) {
     const { status = null, limit = 50, offset = 0 } = options;
-    
+
     let query = 'SELECT * FROM users WHERE role = $1';
     const values = [role];
     let paramCount = 1;
@@ -277,20 +277,21 @@ class User {
     }
 
     query += ' ORDER BY created_at DESC';
-    
+
     paramCount++;
     query += ` LIMIT $${paramCount}`;
     values.push(limit);
-    
+
     paramCount++;
     query += ` OFFSET $${paramCount}`;
     values.push(offset);
 
     const { rows } = await db.query(query, values);
-    return rows.map(row => new User(row));
+    return rows.map((row) => new User(row));
   }
 
   toJSON() {
+    // eslint-disable-next-line no-unused-vars
     const { password, ...userWithoutPassword } = this;
     return userWithoutPassword;
   }

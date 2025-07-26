@@ -10,7 +10,7 @@ class ProductService {
     }
 
     // Validate required fields
-    const { title, description, price, category } = productData;
+    const { title, price, category } = productData;
     if (!title || !price || !category) {
       throw new Error('Title, price, and category are required');
     }
@@ -19,7 +19,7 @@ class ProductService {
       throw new Error('Price must be greater than 0');
     }
 
-    return await Product.create({
+    return Product.create({
       vendorId,
       ...productData
     });
@@ -126,7 +126,7 @@ class ProductService {
     });
 
     // Count total for pagination
-    const countQuery = status 
+    const countQuery = status
       ? { vendorId, status }
       : { vendorId };
     const total = await Product.count(countQuery);
@@ -219,7 +219,7 @@ class ProductService {
     }
 
     const available = product.quantity >= requestedQuantity || product.allowBackorder;
-    
+
     return {
       available,
       availableQuantity: product.quantity,
@@ -242,7 +242,7 @@ class ProductService {
 
     const db = require('../config/database.config');
     const { rows } = await db.query(query, [vendorId]);
-    
+
     return {
       activeProducts: parseInt(rows[0].active_products),
       draftProducts: parseInt(rows[0].draft_products),

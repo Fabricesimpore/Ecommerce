@@ -1,7 +1,7 @@
 const express = require('express');
+const rateLimit = require('express-rate-limit');
 const PaymentController = require('../controllers/payment.controller');
 const { authenticate, requireAdmin } = require('../middlewares/auth.middleware');
-const rateLimit = require('express-rate-limit');
 
 const router = express.Router();
 

@@ -25,13 +25,18 @@ class MockDatabase {
     if (!this.idCounters[tableName]) {
       this.idCounters[tableName] = 1;
     }
-    return this.idCounters[tableName]++;
+    this.idCounters[tableName] += 1;
+    return this.idCounters[tableName] - 1;
   }
 
   // Mock query method
   async query(text, params = []) {
-    console.log(`Mock DB Query: ${text}`);
-    console.log(`Params:`, params);
+    if (process.env.NODE_ENV !== 'test') {
+      // eslint-disable-next-line no-console
+      console.log(`Mock DB Query: ${text}`);
+      // eslint-disable-next-line no-console
+      console.log('Params:', params);
+    }
 
     // Simple pattern matching for common queries
     const textLower = text.toLowerCase().trim();
@@ -42,7 +47,7 @@ class MockDatabase {
         // Handle email/phone lookups
         if (params.length > 0) {
           const email = params[0];
-          const user = this.tables.users.find(u => u.email === email || u.phone === email);
+          const user = this.tables.users.find((u) => u.email === email || u.phone === email);
           return { rows: user ? [user] : [] };
         }
         return { rows: this.tables.users };
@@ -101,7 +106,7 @@ class MockDatabase {
 
   createMockRecord(tableName, params) {
     const timestamp = new Date().toISOString();
-    
+
     switch (tableName) {
       case 'users':
         // Use params for user data if provided
@@ -117,7 +122,7 @@ class MockDatabase {
           created_at: timestamp,
           updated_at: timestamp
         };
-      
+
       case 'products':
         return {
           name: 'Test Product',
@@ -130,7 +135,7 @@ class MockDatabase {
           created_at: timestamp,
           updated_at: timestamp
         };
-      
+
       case 'orders':
         return {
           buyer_id: 1,
@@ -140,7 +145,7 @@ class MockDatabase {
           created_at: timestamp,
           updated_at: timestamp
         };
-      
+
       case 'payments':
         return {
           order_id: 1,
@@ -150,7 +155,7 @@ class MockDatabase {
           created_at: timestamp,
           updated_at: timestamp
         };
-      
+
       case 'event_logs':
         return {
           event_type: 'test_event',
@@ -159,7 +164,7 @@ class MockDatabase {
           event_data: JSON.stringify({}),
           created_at: timestamp
         };
-      
+
       default:
         return {
           created_at: timestamp,

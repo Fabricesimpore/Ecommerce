@@ -5,7 +5,7 @@ const authenticate = async (req, res, next) => {
   try {
     // Get token from header
     const authHeader = req.headers.authorization;
-    
+
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return res.status(401).json({
         success: false,
@@ -18,10 +18,10 @@ const authenticate = async (req, res, next) => {
     try {
       // Verify token
       const decoded = verifyToken(token);
-      
+
       // Get user from database
       const user = await User.findById(decoded.userId);
-      
+
       if (!user) {
         return res.status(401).json({
           success: false,
@@ -39,7 +39,7 @@ const authenticate = async (req, res, next) => {
       // Attach user to request
       req.user = user.toJSON();
       req.userId = user.id;
-      
+
       next();
     } catch (error) {
       if (error.name === 'TokenExpiredError') {
@@ -61,30 +61,28 @@ const authenticate = async (req, res, next) => {
   }
 };
 
-const authorize = (...roles) => {
-  return (req, res, next) => {
-    if (!req.user) {
-      return res.status(401).json({
-        success: false,
-        message: 'Authentication required'
-      });
-    }
+const authorize = (...roles) => (req, res, next) => {
+  if (!req.user) {
+    return res.status(401).json({
+      success: false,
+      message: 'Authentication required'
+    });
+  }
 
-    if (!roles.includes(req.user.role)) {
-      return res.status(403).json({
-        success: false,
-        message: 'Insufficient permissions'
-      });
-    }
+  if (!roles.includes(req.user.role)) {
+    return res.status(403).json({
+      success: false,
+      message: 'Insufficient permissions'
+    });
+  }
 
-    next();
-  };
+  next();
 };
 
 const optionalAuth = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
-    
+
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return next();
     }
@@ -94,7 +92,7 @@ const optionalAuth = async (req, res, next) => {
     try {
       const decoded = verifyToken(token);
       const user = await User.findById(decoded.userId);
-      
+
       if (user && user.status !== 'suspended') {
         req.user = user.toJSON();
         req.userId = user.id;
@@ -102,7 +100,7 @@ const optionalAuth = async (req, res, next) => {
     } catch (error) {
       // Ignore token errors for optional auth
     }
-    
+
     next();
   } catch (error) {
     next(error);

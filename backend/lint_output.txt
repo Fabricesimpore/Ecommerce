@@ -1,0 +1,560 @@
+
+> backend@1.0.0 lint
+> eslint src/
+
+
+C:\Users\Fabrice\OneDrive - University of Oklahoma\Desktop\Ecommerce\backend\src\config\test-database.js
+  102:3   warning  Expected 'this' to be used by class method 'extractTableName'  class-methods-use-this
+  107:3   warning  Expected 'this' to be used by class method 'createMockRecord'  class-methods-use-this
+  113:9   warning  Unexpected lexical declaration in case block                   no-case-declarations
+  113:16  warning  Identifier 'first_name' is not in camel case                   camelcase
+  113:28  warning  Identifier 'last_name' is not in camel case                    camelcase
+  113:53  warning  Identifier 'password_hash' is not in camel case                camelcase
+  115:23  warning  Identifier 'first_name' is not in camel case                   camelcase
+  116:22  warning  Identifier 'last_name' is not in camel case                    camelcase
+  119:26  warning  Identifier 'password_hash' is not in camel case                camelcase
+  244:5   warning  Unexpected console statement                                   no-console
+
+C:\Users\Fabrice\OneDrive - University of Oklahoma\Desktop\Ecommerce\backend\src\controllers\analytics.controller.js
+   84:7   warning  Unexpected console statement                                                 no-console
+   98:20  warning  Missing radix parameter                                                      radix
+   99:9   warning  Missing radix parameter                                                      radix
+  107:17  warning  Missing radix parameter                                                      radix
+  117:7   warning  Unexpected console statement                                                 no-console
+  130:68  warning  Missing radix parameter                                                      radix
+  137:17  warning  Missing radix parameter                                                      radix
+  147:7   warning  Unexpected console statement                                                 no-console
+  161:18  warning  Missing radix parameter                                                      radix
+  162:9   warning  Missing radix parameter                                                      radix
+  170:17  warning  Missing radix parameter                                                      radix
+  180:7   warning  Unexpected console statement                                                 no-console
+  199:7   warning  Unexpected console statement                                                 no-console
+  229:7   warning  Unexpected console statement                                                 no-console
+  279:7   warning  Unexpected console statement                                                 no-console
+  301:7   warning  Unexpected console statement                                                 no-console
+  325:9   warning  Missing radix parameter                                                      radix
+  327:18  warning  Missing radix parameter                                                      radix
+  328:19  warning  Missing radix parameter                                                      radix
+  339:9   warning  Missing radix parameter                                                      radix
+  351:7   warning  Unexpected console statement                                                 no-console
+  365:58  warning  Missing radix parameter                                                      radix
+  373:7   warning  Unexpected console statement                                                 no-console
+  396:9   warning  Missing radix parameter                                                      radix
+  398:18  warning  Missing radix parameter                                                      radix
+  399:19  warning  Missing radix parameter                                                      radix
+  413:7   warning  Unexpected console statement                                                 no-console
+  427:57  warning  Missing radix parameter                                                      radix
+  447:7   warning  Unexpected console statement                                                 no-console
+  456:16  warning  Expected to return a value at the end of static async method 'logTestEvent'  consistent-return
+  479:7   warning  Unexpected console statement                                                 no-console
+
+C:\Users\Fabrice\OneDrive - University of Oklahoma\Desktop\Ecommerce\backend\src\controllers\auth.controller.js
+  32:16  warning  Expected to return a value at the end of static async method 'refreshToken'  consistent-return
+
+C:\Users\Fabrice\OneDrive - University of Oklahoma\Desktop\Ecommerce\backend\src\controllers\cart.controller.js
+   17:16  warning  Expected to return a value at the end of static async method 'addToCart'       consistent-return
+   47:16  warning  Expected to return a value at the end of static async method 'updateCartItem'  consistent-return
+  101:16  warning  Expected to return a value at the end of static async method 'validateCart'    consistent-return
+
+C:\Users\Fabrice\OneDrive - University of Oklahoma\Desktop\Ecommerce\backend\src\controllers\delivery.controller.js
+    4:16  warning  Expected to return a value at the end of static async method 'applyAsDriver'         consistent-return
+   65:16  warning  Expected to return a value at the end of static async method 'updateDeliveryStatus'  consistent-return
+  109:15  warning  Missing radix parameter                                                              radix
+  110:16  warning  Missing radix parameter                                                              radix
+  120:19  warning  Missing radix parameter                                                              radix
+  121:20  warning  Missing radix parameter                                                              radix
+  122:44  warning  Missing radix parameter                                                              radix
+  178:15  warning  Missing radix parameter                                                              radix
+  179:16  warning  Missing radix parameter                                                              radix
+  189:19  warning  Missing radix parameter                                                              radix
+  190:20  warning  Missing radix parameter                                                              radix
+  191:44  warning  Missing radix parameter                                                              radix
+
+C:\Users\Fabrice\OneDrive - University of Oklahoma\Desktop\Ecommerce\backend\src\controllers\job-queue.controller.js
+   10:16  warning  Expected to return a value at the end of static async method 'getJobStatus'     consistent-return
+   28:7   warning  Unexpected console statement                                                    no-console
+   41:53  warning  Missing radix parameter                                                         radix
+   47:18  warning  Missing radix parameter                                                         radix
+   52:7   warning  Unexpected console statement                                                    no-console
+   71:7   warning  Unexpected console statement                                                    no-console
+  101:7   warning  Unexpected console statement                                                    no-console
+  131:7   warning  Unexpected console statement                                                    no-console
+  161:7   warning  Unexpected console statement                                                    no-console
+  189:7   warning  Unexpected console statement                                                    no-console
+  217:7   warning  Unexpected console statement                                                    no-console
+  226:16  warning  Expected to return a value at the end of static async method 'queueOneTimeJob'  consistent-return
+  240:36  warning  Unexpected require()                                                            global-require
+  241:18  warning  Redundant use of `await` on a return value                                      no-return-await
+  244:34  warning  Unexpected require()                                                            global-require
+  245:18  warning  Redundant use of `await` on a return value                                      no-return-await
+  249:18  warning  Redundant use of `await` on a return value                                      no-return-await
+  253:11  warning  Unexpected console statement                                                    no-console
+  258:11  warning  Unexpected console statement                                                    no-console
+  272:60  warning  Missing radix parameter                                                         radix
+  296:57  warning  Missing radix parameter                                                         radix
+  300:7   warning  Unexpected console statement                                                    no-console
+  341:7   warning  Unexpected console statement                                                    no-console
+
+C:\Users\Fabrice\OneDrive - University of Oklahoma\Desktop\Ecommerce\backend\src\controllers\order.controller.js
+    5:16  warning  Expected to return a value at the end of static async method 'createOrder'           consistent-return
+   84:15  warning  Missing radix parameter                                                              radix
+   85:16  warning  Missing radix parameter                                                              radix
+   95:19  warning  Missing radix parameter                                                              radix
+   96:20  warning  Missing radix parameter                                                              radix
+   97:40  warning  Missing radix parameter                                                              radix
+  106:16  warning  Expected to return a value at the end of static async method 'updateOrderStatus'     consistent-return
+  157:16  warning  Expected to return a value at the end of static async method 'trackOrder'            consistent-return
+  162:18  warning  Unexpected require()                                                                 global-require
+  178:24  warning  Unexpected require()                                                                 global-require
+  221:9   warning  Missing radix parameter                                                              radix
+  246:15  warning  Missing radix parameter                                                              radix
+  247:16  warning  Missing radix parameter                                                              radix
+  257:19  warning  Missing radix parameter                                                              radix
+  258:20  warning  Missing radix parameter                                                              radix
+  259:40  warning  Missing radix parameter                                                              radix
+  268:16  warning  Expected to return a value at the end of static async method 'updatePaymentStatus'   consistent-return
+  297:16  warning  Expected to return a value at the end of static async method 'initiateOrderPayment'  consistent-return
+
+C:\Users\Fabrice\OneDrive - University of Oklahoma\Desktop\Ecommerce\backend\src\controllers\payment.controller.js
+    6:16  warning  Expected to return a value at the end of static async method 'initiatePayment'         consistent-return
+   60:7   warning  Unexpected console statement                                                           no-console
+   76:7   warning  Unexpected console statement                                                           no-console
+   95:7   warning  Unexpected console statement                                                           no-console
+  104:16  warning  Expected to return a value at the end of static async method 'verifyPayment'           consistent-return
+  123:7   warning  Unexpected console statement                                                           no-console
+  132:16  warning  Expected to return a value at the end of static async method 'getPayment'              consistent-return
+  158:7   warning  Unexpected console statement                                                           no-console
+  167:16  warning  Expected to return a value at the end of static async method 'getOrderPayments'        consistent-return
+  188:7   warning  Unexpected console statement                                                           no-console
+  197:16  warning  Expected to return a value at the end of static async method 'cancelPayment'           consistent-return
+  227:7   warning  Unexpected console statement                                                           no-console
+  236:16  warning  Expected to return a value at the end of static async method 'retryPayment'            consistent-return
+  286:7   warning  Unexpected console statement                                                           no-console
+  295:16  warning  Expected to return a value at the end of static async method 'getPaymentStatistics'    consistent-return
+  328:7   warning  Unexpected console statement                                                           no-console
+  337:16  warning  Expected to return a value at the end of static async method 'refundPayment'           consistent-return
+  363:7   warning  Unexpected console statement                                                           no-console
+  372:16  warning  Expected to return a value at the end of static async method 'getPaymentAudit'         consistent-return
+  402:7   warning  Unexpected console statement                                                           no-console
+  411:16  warning  Expected to return a value at the end of static async method 'cleanupExpiredPayments'  consistent-return
+  429:7   warning  Unexpected console statement                                                           no-console
+  438:16  warning  Expected to return a value at the end of static async method 'confirmMockPayment'      consistent-return
+  456:7   warning  Unexpected console statement                                                           no-console
+  471:19  warning  Unexpected require()                                                                   global-require
+
+C:\Users\Fabrice\OneDrive - University of Oklahoma\Desktop\Ecommerce\backend\src\controllers\product.controller.js
+   79:26  error    Do not nest ternary expressions                                                no-nested-ternary
+   82:15  warning  Missing radix parameter                                                        radix
+   83:16  warning  Missing radix parameter                                                        radix
+  109:16  warning  Expected to return a value at the end of static async method 'searchProducts'  consistent-return
+  121:15  warning  Missing radix parameter                                                        radix
+  122:16  warning  Missing radix parameter                                                        radix
+  149:15  warning  Missing radix parameter                                                        radix
+  150:16  warning  Missing radix parameter                                                        radix
+  171:65  warning  Missing radix parameter                                                        radix
+  213:71  warning  Missing radix parameter                                                        radix
+  230:15  warning  Missing radix parameter                                                        radix
+  231:16  warning  Missing radix parameter                                                        radix
+
+C:\Users\Fabrice\OneDrive - University of Oklahoma\Desktop\Ecommerce\backend\src\controllers\vendor.controller.js
+    5:16  warning  Expected to return a value at the end of static async method 'applyAsVendor'        consistent-return
+   47:19  error    Do not nest ternary expressions                                                     no-nested-ternary
+   48:16  warning  Missing radix parameter                                                             radix
+   49:18  warning  Missing radix parameter                                                             radix
+   49:40  warning  Missing radix parameter                                                             radix
+   61:49  warning  Missing radix parameter                                                             radix
+   68:19  warning  Missing radix parameter                                                             radix
+   69:20  warning  Missing radix parameter                                                             radix
+   72:22  warning  Missing radix parameter                                                             radix
+   73:22  warning  Missing radix parameter                                                             radix
+   82:16  warning  Expected to return a value at the end of static async method 'getVendor'            consistent-return
+  112:16  warning  Expected to return a value at the end of static async method 'getVendorProducts'    consistent-return
+  127:15  warning  Missing radix parameter                                                             radix
+  128:16  warning  Missing radix parameter                                                             radix
+  150:16  warning  Expected to return a value at the end of static async method 'updateVendorProfile'  consistent-return
+  194:16  warning  Expected to return a value at the end of static async method 'getVendorDashboard'   consistent-return
+  232:16  warning  Expected to return a value at the end of static async method 'approveVendor'        consistent-return
+  258:16  warning  Expected to return a value at the end of static async method 'suspendVendor'        consistent-return
+
+C:\Users\Fabrice\OneDrive - University of Oklahoma\Desktop\Ecommerce\backend\src\middlewares\auth.middleware.js
+    4:45  warning  Expected to return a value at the end of async arrow function  consistent-return
+   64:50  warning  Expected to return a value at the end of arrow function        consistent-return
+   82:45  warning  Expected to return a value at the end of async arrow function  consistent-return
+  110:40  warning  Expected to return a value at the end of arrow function        consistent-return
+  135:39  warning  Expected to return a value at the end of arrow function        consistent-return
+  153:40  warning  Expected to return a value at the end of arrow function        consistent-return
+  178:39  warning  Expected to return a value at the end of arrow function        consistent-return
+
+C:\Users\Fabrice\OneDrive - University of Oklahoma\Desktop\Ecommerce\backend\src\middlewares\validation.middleware.js
+    1:54  warning  Expected to return a value at the end of arrow function  consistent-return
+   80:43  warning  Expected to return a value at the end of arrow function  consistent-return
+  108:40  warning  Expected to return a value at the end of arrow function  consistent-return
+  146:49  warning  Expected to return a value at the end of arrow function  consistent-return
+
+C:\Users\Fabrice\OneDrive - University of Oklahoma\Desktop\Ecommerce\backend\src\models\cart.model.js
+  135:14  warning  Redundant use of `await` on a return value                                                                                                                                 no-return-await
+  200:12  warning  Redundant use of `await` on a return value                                                                                                                                 no-return-await
+  212:12  warning  Redundant use of `await` on a return value                                                                                                                                 no-return-await
+  248:5   error    iterators/generators require regenerator-runtime, which is too heavyweight for this guide to allow them. Separately, loops should be avoided in favor of array iterations  no-restricted-syntax
+  254:9   error    Unexpected use of continue statement                                                                                                                                       no-continue
+
+C:\Users\Fabrice\OneDrive - University of Oklahoma\Desktop\Ecommerce\backend\src\models\delivery.model.js
+   59:40  error    'driverRegion' is assigned a value but never used                                           no-unused-vars
+  179:9   warning  Unary operator '++' used                                                                    no-plusplus
+  185:9   warning  Unary operator '++' used                                                                    no-plusplus
+  191:9   warning  Unary operator '++' used                                                                    no-plusplus
+  271:24  warning  Missing radix parameter                                                                     radix
+  272:28  warning  Missing radix parameter                                                                     radix
+  273:25  warning  Missing radix parameter                                                                     radix
+  277:20  warning  Missing radix parameter                                                                     radix
+  278:12  warning  Missing radix parameter                                                                     radix
+  278:51  error    Unexpected mix of '/' and '*'. Use parentheses to clarify the intended order of operations  no-mixed-operators
+  278:53  warning  Missing radix parameter                                                                     radix
+  278:88  error    Unexpected mix of '/' and '*'. Use parentheses to clarify the intended order of operations  no-mixed-operators
+
+C:\Users\Fabrice\OneDrive - University of Oklahoma\Desktop\Ecommerce\backend\src\models\order.model.js
+   59:7   error  iterators/generators require regenerator-runtime, which is too heavyweight for this guide to allow them. Separately, loops should be avoided in favor of array iterations  no-restricted-syntax
+   61:39  error  Unexpected `await` inside a loop                                                                                                                                           no-await-in-loop
+  120:7   error  iterators/generators require regenerator-runtime, which is too heavyweight for this guide to allow them. Separately, loops should be avoided in favor of array iterations  no-restricted-syntax
+  128:9   error  Unexpected `await` inside a loop                                                                                                                                           no-await-in-loop
+  135:25  error  Unexpected `await` inside a loop                                                                                                                                           no-await-in-loop
+  137:11  error  Unexpected `await` inside a loop                                                                                                                                           no-await-in-loop
+  374:7   error  iterators/generators require regenerator-runtime, which is too heavyweight for this guide to allow them. Separately, loops should be avoided in favor of array iterations  no-restricted-syntax
+  376:39  error  Unexpected `await` inside a loop                                                                                                                                           no-await-in-loop
+  379:11  error  Unexpected `await` inside a loop                                                                                                                                           no-await-in-loop
+
+C:\Users\Fabrice\OneDrive - University of Oklahoma\Desktop\Ecommerce\backend\src\models\payment.model.js
+  139:9   warning  Unary operator '++' used                    no-plusplus
+  144:9   warning  Unary operator '++' used                    no-plusplus
+  151:9   warning  Unary operator '++' used                    no-plusplus
+  161:7   warning  Unary operator '++' used                    no-plusplus
+  168:7   warning  Unary operator '++' used                    no-plusplus
+  175:7   warning  Unary operator '++' used                    no-plusplus
+  182:7   warning  Unary operator '++' used                    no-plusplus
+  188:7   warning  Unary operator '++' used                    no-plusplus
+  218:12  warning  Redundant use of `await` on a return value  no-return-await
+  231:12  warning  Redundant use of `await` on a return value  no-return-await
+  248:12  warning  Redundant use of `await` on a return value  no-return-await
+  292:7   warning  Unary operator '++' used                    no-plusplus
+  298:7   warning  Unary operator '++' used                    no-plusplus
+  304:7   warning  Unary operator '++' used                    no-plusplus
+  310:7   warning  Unary operator '++' used                    no-plusplus
+  321:25  warning  Missing radix parameter                     radix
+  333:12  warning  Missing radix parameter                     radix
+  412:23  error    Do not nest ternary expressions             no-nested-ternary
+
+C:\Users\Fabrice\OneDrive - University of Oklahoma\Desktop\Ecommerce\backend\src\models\product.model.js
+   16:21  warning  Missing radix parameter                                radix
+  131:7   warning  Unary operator '++' used                               no-plusplus
+  138:7   warning  Unary operator '++' used                               no-plusplus
+  145:7   warning  Unary operator '++' used                               no-plusplus
+  152:7   warning  Unary operator '++' used                               no-plusplus
+  159:7   warning  Unary operator '++' used                               no-plusplus
+  165:7   warning  Unary operator '++' used                               no-plusplus
+  172:7   warning  Unary operator '++' used                               no-plusplus
+  179:7   warning  Unary operator '++' used                               no-plusplus
+  180:1   error    This line has a length of 148. Maximum allowed is 120  max-len
+  191:5   warning  Unary operator '++' used                               no-plusplus
+  195:5   warning  Unary operator '++' used                               no-plusplus
+  216:7   warning  Unary operator '++' used                               no-plusplus
+  222:7   warning  Unary operator '++' used                               no-plusplus
+  228:7   warning  Unary operator '++' used                               no-plusplus
+  234:7   warning  Unary operator '++' used                               no-plusplus
+  235:1   error    This line has a length of 148. Maximum allowed is 120  max-len
+  240:12  warning  Missing radix parameter                                radix
+  267:9   warning  Unary operator '++' used                               no-plusplus
+
+C:\Users\Fabrice\OneDrive - University of Oklahoma\Desktop\Ecommerce\backend\src\models\user.model.js
+  135:9   warning  Unary operator '++' used                       no-plusplus
+  241:7   warning  Unary operator '++' used                       no-plusplus
+  254:5   warning  Unary operator '++' used                       no-plusplus
+  258:5   warning  Unary operator '++' used                       no-plusplus
+  274:7   warning  Unary operator '++' used                       no-plusplus
+  281:5   warning  Unary operator '++' used                       no-plusplus
+  285:5   warning  Unary operator '++' used                       no-plusplus
+  294:13  error    'password' is assigned a value but never used  no-unused-vars
+
+C:\Users\Fabrice\OneDrive - University of Oklahoma\Desktop\Ecommerce\backend\src\services\analytics.service.js
+   53:3   warning  Expected 'this' to be used by class async method 'getAnalyticsSummary'                                                                                                     class-methods-use-this
+   83:7   warning  Unexpected console statement                                                                                                                                               no-console
+   89:3   warning  Expected 'this' to be used by class async method 'getDailyOverview'                                                                                                        class-methods-use-this
+  103:24  warning  Missing radix parameter                                                                                                                                                    radix
+  105:26  warning  Missing radix parameter                                                                                                                                                    radix
+  111:7   warning  Unexpected console statement                                                                                                                                               no-console
+  117:3   warning  Expected 'this' to be used by class async method 'getProductAnalytics'                                                                                                     class-methods-use-this
+  155:20  warning  Missing radix parameter                                                                                                                                                    radix
+  156:23  warning  Missing radix parameter                                                                                                                                                    radix
+  157:28  warning  Missing radix parameter                                                                                                                                                    radix
+  158:21  warning  Missing radix parameter                                                                                                                                                    radix
+  167:7   warning  Unexpected console statement                                                                                                                                               no-console
+  173:3   warning  Expected 'this' to be used by class async method 'getVendorAnalytics'                                                                                                      class-methods-use-this
+  215:26  warning  Missing radix parameter                                                                                                                                                    radix
+  216:30  warning  Missing radix parameter                                                                                                                                                    radix
+  217:30  warning  Missing radix parameter                                                                                                                                                    radix
+  221:28  warning  Missing radix parameter                                                                                                                                                    radix
+  222:30  warning  Missing radix parameter                                                                                                                                                    radix
+  225:39  error    Unexpected mix of '/' and '*'. Use parentheses to clarify the intended order of operations                                                                                 no-mixed-operators
+  225:58  error    Unexpected mix of '/' and '*'. Use parentheses to clarify the intended order of operations                                                                                 no-mixed-operators
+  232:7   warning  Unexpected console statement                                                                                                                                               no-console
+  238:3   warning  Expected 'this' to be used by class async method 'getPaymentAnalytics'                                                                                                     class-methods-use-this
+  267:28  warning  Missing radix parameter                                                                                                                                                    radix
+  268:33  warning  Missing radix parameter                                                                                                                                                    radix
+  269:29  warning  Missing radix parameter                                                                                                                                                    radix
+  270:32  warning  Missing radix parameter                                                                                                                                                    radix
+  275:27  warning  Missing radix parameter                                                                                                                                                    radix
+  281:7   warning  Unexpected console statement                                                                                                                                               no-console
+  287:3   warning  Expected 'this' to be used by class async method 'getUserBehaviorAnalytics'                                                                                                class-methods-use-this
+  316:1   error    This line has a length of 124. Maximum allowed is 120                                                                                                                      max-len
+  330:28  warning  Missing radix parameter                                                                                                                                                    radix
+  331:29  warning  Missing radix parameter                                                                                                                                                    radix
+  332:28  warning  Missing radix parameter                                                                                                                                                    radix
+  333:34  warning  Missing radix parameter                                                                                                                                                    radix
+  334:33  warning  Missing radix parameter                                                                                                                                                    radix
+  335:32  warning  Missing radix parameter                                                                                                                                                    radix
+  336:29  warning  Missing radix parameter                                                                                                                                                    radix
+  341:42  error    Unexpected mix of '/' and '*'. Use parentheses to clarify the intended order of operations                                                                                 no-mixed-operators
+  341:70  error    Unexpected mix of '/' and '*'. Use parentheses to clarify the intended order of operations                                                                                 no-mixed-operators
+  348:7   warning  Unexpected console statement                                                                                                                                               no-console
+  354:3   warning  Expected 'this' to be used by class async method 'getRealTimeDashboard'                                                                                                    class-methods-use-this
+  414:20  warning  Missing radix parameter                                                                                                                                                    radix
+  419:23  warning  Missing radix parameter                                                                                                                                                    radix
+  420:25  warning  Missing radix parameter                                                                                                                                                    radix
+  421:61  error    Unexpected mix of '/' and '*'. Use parentheses to clarify the intended order of operations                                                                                 no-mixed-operators
+  421:76  error    Unexpected mix of '/' and '*'. Use parentheses to clarify the intended order of operations                                                                                 no-mixed-operators
+  423:27  warning  Missing radix parameter                                                                                                                                                    radix
+  424:30  warning  Missing radix parameter                                                                                                                                                    radix
+  427:21  warning  Missing radix parameter                                                                                                                                                    radix
+  433:7   warning  Unexpected console statement                                                                                                                                               no-console
+  462:1   error    This line has a length of 144. Maximum allowed is 120                                                                                                                      max-len
+  485:7   warning  Unexpected console statement                                                                                                                                               no-console
+  498:7   warning  Unexpected console statement                                                                                                                                               no-console
+  501:7   warning  Unexpected console statement                                                                                                                                               no-console
+  557:7   warning  Unexpected console statement                                                                                                                                               no-console
+  563:3   warning  Expected 'this' to be used by class method 'convertToCSV'                                                                                                                  class-methods-use-this
+  569:5   error    iterators/generators require regenerator-runtime, which is too heavyweight for this guide to allow them. Separately, loops should be avoided in favor of array iterations  no-restricted-syntax
+
+C:\Users\Fabrice\OneDrive - University of Oklahoma\Desktop\Ecommerce\backend\src\services\auth.service.js
+  174:20  warning  Unexpected require()  global-require
+  177:16  warning  Unexpected require()  global-require
+
+C:\Users\Fabrice\OneDrive - University of Oklahoma\Desktop\Ecommerce\backend\src\services\delivery.service.js
+   24:16  warning  Unexpected require()                                                                                                                                                       global-require
+   43:12  warning  Redundant use of `await` on a return value                                                                                                                                 no-return-await
+   53:12  warning  Redundant use of `await` on a return value                                                                                                                                 no-return-await
+   62:12  warning  Redundant use of `await` on a return value                                                                                                                                 no-return-await
+   67:12  warning  Redundant use of `await` on a return value                                                                                                                                 no-return-await
+   81:12  warning  Redundant use of `await` on a return value                                                                                                                                 no-return-await
+   91:12  warning  Redundant use of `await` on a return value                                                                                                                                 no-return-await
+  101:12  warning  Redundant use of `await` on a return value                                                                                                                                 no-return-await
+  150:5   error    iterators/generators require regenerator-runtime, which is too heavyweight for this guide to allow them. Separately, loops should be avoided in favor of array iterations  no-restricted-syntax
+  161:18  warning  Unexpected require()                                                                                                                                                       global-require
+  162:37  error    Unexpected `await` inside a loop                                                                                                                                           no-await-in-loop
+  175:11  error    Unexpected `await` inside a loop                                                                                                                                           no-await-in-loop
+  182:11  warning  Unexpected console statement                                                                                                                                               no-console
+  219:16  warning  Unexpected require()                                                                                                                                                       global-require
+  223:24  warning  Missing radix parameter                                                                                                                                                    radix
+  224:28  warning  Missing radix parameter                                                                                                                                                    radix
+  225:25  warning  Missing radix parameter                                                                                                                                                    radix
+  226:26  warning  Missing radix parameter                                                                                                                                                    radix
+  231:20  warning  Missing radix parameter                                                                                                                                                    radix
+  232:13  warning  Missing radix parameter                                                                                                                                                    radix
+  232:54  warning  Missing radix parameter                                                                                                                                                    radix
+  244:12  warning  Redundant use of `await` on a return value                                                                                                                                 no-return-await
+  247:40  error    'reason' is assigned a value but never used                                                                                                                                no-unused-vars
+  256:5   error    iterators/generators require regenerator-runtime, which is too heavyweight for this guide to allow them. Separately, loops should be avoided in favor of array iterations  no-restricted-syntax
+  257:7   error    Unexpected `await` inside a loop                                                                                                                                           no-await-in-loop
+  260:12  warning  Redundant use of `await` on a return value                                                                                                                                 no-return-await
+  295:7   warning  Unary operator '++' used                                                                                                                                                   no-plusplus
+  301:7   warning  Unary operator '++' used                                                                                                                                                   no-plusplus
+  309:16  warning  Unexpected require()                                                                                                                                                       global-require
+
+C:\Users\Fabrice\OneDrive - University of Oklahoma\Desktop\Ecommerce\backend\src\services\event-logger.service.js
+   66:9   warning  Unexpected console statement                                                                no-console
+   72:7   warning  Unexpected console statement                                                                no-console
+   73:7   warning  Unexpected console statement                                                                no-console
+   80:12  warning  Redundant use of `await` on a return value                                                  no-return-await
+   97:12  warning  Redundant use of `await` on a return value                                                  no-return-await
+  115:12  warning  Redundant use of `await` on a return value                                                  no-return-await
+  133:12  warning  Redundant use of `await` on a return value                                                  no-return-await
+  151:12  warning  Redundant use of `await` on a return value                                                  no-return-await
+  169:12  warning  Redundant use of `await` on a return value                                                  no-return-await
+  187:12  warning  Redundant use of `await` on a return value                                                  no-return-await
+  209:12  warning  Redundant use of `await` on a return value                                                  no-return-await
+  222:12  warning  Redundant use of `await` on a return value                                                  no-return-await
+  243:3   warning  Expected 'this' to be used by class async method 'getEventHistory'                          class-methods-use-this
+  269:9   warning  Unary operator '++' used                                                                    no-plusplus
+  275:9   warning  Unary operator '++' used                                                                    no-plusplus
+  281:9   warning  Unary operator '++' used                                                                    no-plusplus
+  287:9   warning  Unary operator '++' used                                                                    no-plusplus
+  329:7   warning  Unexpected console statement                                                                no-console
+  335:3   warning  Expected 'this' to be used by class async method 'getEventsByActor'                         class-methods-use-this
+  364:9   warning  Unary operator '++' used                                                                    no-plusplus
+  370:9   warning  Unary operator '++' used                                                                    no-plusplus
+  376:9   warning  Unary operator '++' used                                                                    no-plusplus
+  382:9   warning  Unary operator '++' used                                                                    no-plusplus
+  421:7   warning  Unexpected console statement                                                                no-console
+  427:3   warning  Expected 'this' to be used by class async method 'getEventStatistics'                       class-methods-use-this
+  452:24  warning  Missing radix parameter                                                                     radix
+  453:29  warning  Missing radix parameter                                                                     radix
+  454:25  warning  Missing radix parameter                                                                     radix
+  455:25  warning  Missing radix parameter                                                                     radix
+  457:38  error    Unexpected mix of '/' and '*'. Use parentheses to clarify the intended order of operations  no-mixed-operators
+  457:57  error    Unexpected mix of '/' and '*'. Use parentheses to clarify the intended order of operations  no-mixed-operators
+  463:7   warning  Unexpected console statement                                                                no-console
+  491:7   warning  Unexpected console statement                                                                no-console
+
+C:\Users\Fabrice\OneDrive - University of Oklahoma\Desktop\Ecommerce\backend\src\services\fraud-detection.service.js
+  103:7   warning  Unexpected console statement                                           no-console
+  122:3   warning  Expected 'this' to be used by class async method 'updateUserBehavior'  class-methods-use-this
+  128:7   warning  Unexpected console statement                                           no-console
+  177:7   warning  Unexpected console statement                                           no-console
+  210:7   warning  Unexpected console statement                                           no-console
+  212:7   warning  Unexpected console statement                                           no-console
+  248:7   warning  Unexpected console statement                                           no-console
+  254:3   warning  Expected 'this' to be used by class async method 'getFraudIncidents'   class-methods-use-this
+  285:9   warning  Unary operator '++' used                                               no-plusplus
+  291:9   warning  Unary operator '++' used                                               no-plusplus
+  297:9   warning  Unary operator '++' used                                               no-plusplus
+  303:9   warning  Unary operator '++' used                                               no-plusplus
+  309:9   warning  Unary operator '++' used                                               no-plusplus
+  315:9   warning  Unary operator '++' used                                               no-plusplus
+  365:7   warning  Unexpected console statement                                           no-console
+  425:7   warning  Unexpected console statement                                           no-console
+  440:34  warning  Missing radix parameter                                                radix
+  460:9   warning  Unexpected console statement                                           no-console
+  463:7   warning  Unexpected console statement                                           no-console
+  468:3   warning  Expected 'this' to be used by class async method 'getFraudStatistics'  class-methods-use-this
+  507:27  warning  Missing radix parameter                                                radix
+  508:31  warning  Missing radix parameter                                                radix
+  509:27  warning  Missing radix parameter                                                radix
+  510:27  warning  Missing radix parameter                                                radix
+  512:30  warning  Missing radix parameter                                                radix
+  521:18  warning  Missing radix parameter                                                radix
+  523:25  warning  Missing radix parameter                                                radix
+  524:29  warning  Missing radix parameter                                                radix
+  528:7   warning  Unexpected console statement                                           no-console
+  534:3   warning  Expected 'this' to be used by class async method 'getFraudDashboard'   class-methods-use-this
+  544:26  warning  Missing radix parameter                                                radix
+  546:27  warning  Missing radix parameter                                                radix
+  547:27  warning  Missing radix parameter                                                radix
+  548:25  warning  Missing radix parameter                                                radix
+  552:7   warning  Unexpected console statement                                           no-console
+  565:3   warning  Expected 'this' to be used by class method 'getActionMessage'          class-methods-use-this
+
+C:\Users\Fabrice\OneDrive - University of Oklahoma\Desktop\Ecommerce\backend\src\services\job-queue.service.js
+   18:7   warning  Unexpected console statement                                                                                                                                               no-console
+   22:5   warning  Unexpected console statement                                                                                                                                               no-console
+   32:7   warning  Unexpected console statement                                                                                                                                               no-console
+   33:7   warning  Unexpected console statement                                                                                                                                               no-console
+   35:7   warning  Unexpected console statement                                                                                                                                               no-console
+   87:7   warning  Unexpected console statement                                                                                                                                               no-console
+  110:5   warning  Unexpected console statement                                                                                                                                               no-console
+  119:7   warning  Unexpected console statement                                                                                                                                               no-console
+  123:5   warning  Unexpected console statement                                                                                                                                               no-console
+  128:7   warning  Unary operator '++' used                                                                                                                                                   no-plusplus
+  157:7   warning  Unexpected console statement                                                                                                                                               no-console
+  179:7   warning  Unexpected console statement                                                                                                                                               no-console
+  184:3   warning  Expected 'this' to be used by class async method 'runAnalyticsCalculation'                                                                                                 class-methods-use-this
+  189:3   warning  Expected 'this' to be used by class async method 'runPaymentCleanup'                                                                                                       class-methods-use-this
+  199:3   warning  Expected 'this' to be used by class async method 'runFraudModelUpdate'                                                                                                     class-methods-use-this
+  201:5   warning  Unexpected console statement                                                                                                                                               no-console
+  206:16  warning  Unexpected require()                                                                                                                                                       global-require
+  220:26  warning  Missing radix parameter                                                                                                                                                    radix
+  222:13  error    'healthStatus' is assigned a value but never used                                                                                                                          no-unused-vars
+  243:3   warning  Expected 'this' to be used by class async method 'runDatabaseMaintenance'                                                                                                  class-methods-use-this
+  244:16  warning  Unexpected require()                                                                                                                                                       global-require
+  255:7   error    iterators/generators require regenerator-runtime, which is too heavyweight for this guide to allow them. Separately, loops should be avoided in favor of array iterations  no-restricted-syntax
+  257:11  error    Unexpected `await` inside a loop                                                                                                                                           no-await-in-loop
+  258:11  warning  Unary operator '++' used                                                                                                                                                   no-plusplus
+  260:11  warning  Unexpected console statement                                                                                                                                               no-console
+  266:7   warning  Unexpected console statement                                                                                                                                               no-console
+  271:3   warning  Expected 'this' to be used by class async method 'runVendorReports'                                                                                                        class-methods-use-this
+  274:7   warning  Unexpected console statement                                                                                                                                               no-console
+  277:7   warning  Unexpected console statement                                                                                                                                               no-console
+  282:3   warning  Expected 'this' to be used by class async method 'runEmailDigest'                                                                                                          class-methods-use-this
+  285:7   warning  Unexpected console statement                                                                                                                                               no-console
+  288:7   warning  Unexpected console statement                                                                                                                                               no-console
+  299:5   warning  Unexpected console statement                                                                                                                                               no-console
+  352:5   warning  Unexpected console statement                                                                                                                                               no-console
+  363:5   warning  Unexpected console statement                                                                                                                                               no-console
+  376:7   warning  Unexpected console statement                                                                                                                                               no-console
+  383:5   warning  Unexpected console statement                                                                                                                                               no-console
+  385:5   error    iterators/generators require regenerator-runtime, which is too heavyweight for this guide to allow them. Separately, loops should be avoided in favor of array iterations  no-restricted-syntax
+  385:17  error    'name' is assigned a value but never used                                                                                                                                  no-unused-vars
+  390:5   warning  Unexpected console statement                                                                                                                                               no-console
+  395:5   warning  Unexpected console statement                                                                                                                                               no-console
+  400:7   error    iterators/generators require regenerator-runtime, which is too heavyweight for this guide to allow them. Separately, loops should be avoided in favor of array iterations  no-restricted-syntax
+  400:19  error    'name' is assigned a value but never used                                                                                                                                  no-unused-vars
+  405:7   warning  Unexpected console statement                                                                                                                                               no-console
+  410:3   warning  Expected 'this' to be used by class method 'getNextRunTime'                                                                                                                class-methods-use-this
+  410:18  error    'cronPattern' is defined but never used. Allowed unused args must match /next/u                                                                                            no-unused-vars
+  467:7   warning  Unexpected console statement                                                                                                                                               no-console
+
+C:\Users\Fabrice\OneDrive - University of Oklahoma\Desktop\Ecommerce\backend\src\services\order.service.js
+   48:12  warning  Redundant use of `await` on a return value  no-return-await
+   84:14  warning  Redundant use of `await` on a return value  no-return-await
+   86:14  warning  Redundant use of `await` on a return value  no-return-await
+  123:12  warning  Redundant use of `await` on a return value  no-return-await
+  145:12  warning  Redundant use of `await` on a return value  no-return-await
+  154:12  warning  Redundant use of `await` on a return value  no-return-await
+  202:16  warning  Unexpected require()                        global-require
+  206:20  warning  Missing radix parameter                     radix
+  207:24  warning  Missing radix parameter                     radix
+  208:24  warning  Missing radix parameter                     radix
+  214:30  warning  Missing radix parameter                     radix
+  259:7   warning  Unary operator '++' used                    no-plusplus
+  265:7   warning  Unary operator '++' used                    no-plusplus
+  273:16  warning  Unexpected require()                        global-require
+
+C:\Users\Fabrice\OneDrive - University of Oklahoma\Desktop\Ecommerce\backend\src\services\payment.service.js
+    2:15  warning  'axios' should be listed in the project's dependencies, not devDependencies      import/no-extraneous-dependencies
+  230:13  warning  Unexpected console statement                                                     no-console
+  258:3   warning  Expected 'this' to be used by class async method 'processCashOnDeliveryPayment'  class-methods-use-this
+  260:46  error    Unexpected line break after this opening brace                                   object-curly-newline
+  260:47  error    Trailing spaces not allowed                                                      no-trailing-spaces
+  261:82  error    Trailing spaces not allowed                                                      no-trailing-spaces
+  262:5   error    Unexpected line break before this closing brace                                  object-curly-newline
+  273:3   warning  Expected 'this' to be used by class async method 'processBankTransferPayment'    class-methods-use-this
+  303:32  warning  Identifier 'transaction_id' is not in camel case                                 camelcase
+  303:48  warning  Identifier 'error_message' is not in camel case                                  camelcase
+  312:5   warning  Unexpected console statement                                                     no-console
+  327:36  warning  Identifier 'transaction_id' is not in camel case                                 camelcase
+  344:29  warning  Identifier 'error_message' is not in camel case                                  camelcase
+  356:9   warning  Unexpected console statement                                                     no-console
+  407:11  warning  Unexpected console statement                                                     no-console
+  412:7   warning  Unexpected console statement                                                     no-console
+  418:3   warning  Expected 'this' to be used by class async method 'verifyMockPayment'             class-methods-use-this
+  439:3   warning  Expected 'this' to be used by class async method 'confirmMockPayment'            class-methods-use-this
+  457:7   warning  Unexpected console statement                                                     no-console
+  505:7   warning  Unexpected console statement                                                     no-console
+  521:3   warning  Expected 'this' to be used by class method 'isValidPaymentMethod'                class-methods-use-this
+  527:3   warning  Expected 'this' to be used by class async method 'getPaymentStatistics'          class-methods-use-this
+  528:12  warning  Redundant use of `await` on a return value                                       no-return-await
+  532:3   warning  Expected 'this' to be used by class async method 'cleanupExpiredPayments'        class-methods-use-this
+  533:12  warning  Redundant use of `await` on a return value                                       no-return-await
+  550:7   warning  Unexpected console statement                                                     no-console
+
+C:\Users\Fabrice\OneDrive - University of Oklahoma\Desktop\Ecommerce\backend\src\services\product.service.js
+   67:12  warning  Redundant use of `await` on a return value  no-return-await
+   81:12  warning  Redundant use of `await` on a return value  no-return-await
+  104:15  warning  Missing radix parameter                     radix
+  105:16  warning  Missing radix parameter                     radix
+  138:15  warning  Missing radix parameter                     radix
+  139:16  warning  Missing radix parameter                     radix
+  149:12  warning  Redundant use of `await` on a return value  no-return-await
+  157:12  warning  Redundant use of `await` on a return value  no-return-await
+  165:12  warning  Redundant use of `await` on a return value  no-return-await
+  175:12  warning  Redundant use of `await` on a return value  no-return-await
+  184:12  warning  Redundant use of `await` on a return value  no-return-await
+  188:12  warning  Redundant use of `await` on a return value  no-return-await
+  197:12  warning  Redundant use of `await` on a return value  no-return-await
+  243:16  warning  Unexpected require()                        global-require
+  247:23  warning  Missing radix parameter                     radix
+  248:22  warning  Missing radix parameter                     radix
+  249:25  warning  Missing radix parameter                     radix
+  250:22  warning  Missing radix parameter                     radix
+  252:23  warning  Missing radix parameter                     radix
+
+✖ 498 problems (49 errors, 449 warnings)
+  4 errors and 0 warnings potentially fixable with the `--fix` option.
+

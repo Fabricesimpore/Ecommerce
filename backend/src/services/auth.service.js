@@ -93,7 +93,7 @@ class AuthService {
     try {
       // Verify refresh token
       const decoded = verifyToken(refreshToken, true);
-      
+
       // Get user
       const user = await User.findById(decoded.userId);
       if (!user) {
@@ -136,7 +136,7 @@ class AuthService {
     try {
       const decoded = verifyToken(token);
       const user = await User.findById(decoded.userId);
-      
+
       if (!user) {
         throw new Error('User not found');
       }
@@ -173,7 +173,7 @@ class AuthService {
     // Update password
     const bcrypt = require('bcrypt');
     const hashedPassword = await bcrypt.hash(newPassword, 10);
-    
+
     const db = require('../config/database.config');
     await db.query(
       'UPDATE users SET password = $1 WHERE id = $2',

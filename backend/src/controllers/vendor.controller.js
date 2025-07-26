@@ -5,7 +5,7 @@ class VendorController {
   static async applyAsVendor(req, res, next) {
     try {
       const { businessName, nationalId } = req.body;
-      
+
       if (!businessName || !nationalId) {
         return res.status(400).json({
           success: false,
@@ -22,7 +22,7 @@ class VendorController {
       }
 
       await user.applyAsVendor({ businessName, nationalId });
-      
+
       res.status(200).json({
         success: true,
         message: 'Vendor application submitted successfully. Awaiting approval.',
@@ -42,15 +42,22 @@ class VendorController {
         verified
       } = req.query;
 
+      let verifiedValue = null;
+      if (verified === 'true') {
+        verifiedValue = true;
+      } else if (verified === 'false') {
+        verifiedValue = false;
+      }
+
       const options = {
         status,
-        verified: verified === 'true' ? true : verified === 'false' ? false : null,
+        verified: verifiedValue,
         limit: parseInt(limit),
         offset: (parseInt(page) - 1) * parseInt(limit)
       };
 
       const vendors = await User.getVendors(options);
-      
+
       // Get total count for pagination
       const totalOptions = { status };
       if (options.verified !== null) {
@@ -63,7 +70,7 @@ class VendorController {
       res.status(200).json({
         success: true,
         data: {
-          vendors: vendors.map(v => v.toJSON()),
+          vendors: vendors.map((v) => v.toJSON()),
           pagination: {
             page: parseInt(page),
             limit: parseInt(limit),
@@ -83,7 +90,7 @@ class VendorController {
     try {
       const { id } = req.params;
       const { includeStats = false } = req.query;
-      
+
       const vendor = await User.findById(id);
       if (!vendor || !vendor.isVendor()) {
         return res.status(404).json({
@@ -113,7 +120,7 @@ class VendorController {
     try {
       const { id } = req.params;
       const { page = 1, limit = 20, status = 'active' } = req.query;
-      
+
       // Verify vendor exists
       const vendor = await User.findById(id);
       if (!vendor || !vendor.isVendor()) {
@@ -128,7 +135,7 @@ class VendorController {
         limit: parseInt(limit),
         status
       });
-      
+
       res.status(200).json({
         success: true,
         data: {
@@ -138,7 +145,7 @@ class VendorController {
             firstName: vendor.firstName,
             lastName: vendor.lastName
           },
-          products: result.products.map(p => p.toJSON()),
+          products: result.products.map((p) => p.toJSON()),
           pagination: result.pagination
         }
       });
@@ -156,7 +163,7 @@ class VendorController {
       ];
 
       const updates = {};
-      Object.keys(req.body).forEach(key => {
+      Object.keys(req.body).forEach((key) => {
         if (allowedUpdates.includes(key)) {
           // Convert camelCase to snake_case for database
           const dbKey = key.replace(/([A-Z])/g, '_$1').toLowerCase();
@@ -180,7 +187,7 @@ class VendorController {
       }
 
       await user.update(updates);
-      
+
       res.status(200).json({
         success: true,
         message: 'Profile updated successfully',
@@ -213,10 +220,10 @@ class VendorController {
       const dashboardData = {
         vendor: user.toJSON(),
         stats: {
-          products: productStats,
+          products: productStats
           // Add more stats here as needed (orders, revenue, etc.)
         },
-        recentProducts: recentProducts.products.map(p => p.toJSON())
+        recentProducts: recentProducts.products.map((p) => p.toJSON())
       };
 
       res.status(200).json({
@@ -232,7 +239,7 @@ class VendorController {
   static async approveVendor(req, res, next) {
     try {
       const { id } = req.params;
-      
+
       const vendor = await User.findById(id);
       if (!vendor || !vendor.isVendor()) {
         return res.status(404).json({
@@ -244,7 +251,7 @@ class VendorController {
       await vendor.updateStatus('active');
       await vendor.verifyIdentity();
       await vendor.verifyBusinessLicense();
-      
+
       res.status(200).json({
         success: true,
         message: 'Vendor approved successfully',
@@ -259,7 +266,7 @@ class VendorController {
     try {
       const { id } = req.params;
       const { reason } = req.body;
-      
+
       const vendor = await User.findById(id);
       if (!vendor || !vendor.isVendor()) {
         return res.status(404).json({
@@ -269,16 +276,16 @@ class VendorController {
       }
 
       await vendor.updateStatus('suspended');
-      
+
       // TODO: Log suspension reason in audit table
       // TODO: Send notification to vendor
-      
+
       res.status(200).json({
         success: true,
         message: 'Vendor suspended successfully',
-        data: { 
+        data: {
           vendor: vendor.toJSON(),
-          reason 
+          reason
         }
       });
     } catch (error) {

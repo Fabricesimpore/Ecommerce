@@ -182,7 +182,7 @@ class PaymentController {
 
       res.json({
         success: true,
-        data: payments.map(payment => payment.toJSON())
+        data: payments.map((payment) => payment.toJSON())
       });
     } catch (error) {
       console.error('Get order payments error:', error);
@@ -470,7 +470,7 @@ class PaymentController {
     // Users can access their own payments
     const Order = require('../models/order.model');
     const order = await Order.findById(payment.orderId);
-    
+
     if (!order) {
       return false;
     }
@@ -483,7 +483,7 @@ class PaymentController {
     // Vendors can access payments for orders containing their products
     if (user.role === 'vendor') {
       const vendorOrders = await Order.findByVendor(user.id);
-      return vendorOrders.some(vendorOrder => vendorOrder.id === order.id);
+      return vendorOrders.some((vendorOrder) => vendorOrder.id === order.id);
     }
 
     return false;

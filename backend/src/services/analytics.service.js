@@ -98,7 +98,7 @@ class AnalyticsService {
 
       return {
         success: true,
-        data: rows.map(row => ({
+        data: rows.map((row) => ({
           date: row.stat_date,
           totalOrders: parseInt(row.total_orders),
           totalRevenue: parseFloat(row.total_revenue),
@@ -146,7 +146,7 @@ class AnalyticsService {
 
       return {
         success: true,
-        data: rows.map(row => ({
+        data: rows.map((row) => ({
           productId: row.id,
           title: row.title,
           price: parseFloat(row.price),
@@ -206,7 +206,7 @@ class AnalyticsService {
 
       return {
         success: true,
-        data: rows.map(row => ({
+        data: rows.map((row) => ({
           vendorId: row.id,
           name: `${row.first_name} ${row.last_name}`,
           businessName: row.business_name,
@@ -221,8 +221,8 @@ class AnalyticsService {
             productsAdded: parseInt(row.products_added),
             productsUpdated: parseInt(row.products_updated),
             avgInventoryValue: parseFloat(row.avg_inventory_value),
-            fulfillmentRate: row.total_orders > 0 
-              ? (row.fulfilled_orders / row.total_orders * 100).toFixed(2)
+            fulfillmentRate: row.total_orders > 0
+              ? ((row.fulfilled_orders / row.total_orders) * 100).toFixed(2)
               : 0
           }
         })),
@@ -260,7 +260,7 @@ class AnalyticsService {
 
       return {
         success: true,
-        data: rows.map(row => ({
+        data: rows.map((row) => ({
           paymentMethod: row.payment_method,
           region: row.region,
           metrics: {
@@ -313,13 +313,14 @@ class AnalyticsService {
         values.push(userId);
       }
 
-      query += ' GROUP BY u.id, u.first_name, u.last_name, u.email, u.role, u.created_at ORDER BY total_orders_placed DESC';
+      query += ` GROUP BY u.id, u.first_name, u.last_name, u.email, u.role, u.created_at
+        ORDER BY total_orders_placed DESC`;
 
       const { rows } = await db.query(query, values);
 
       return {
         success: true,
-        data: rows.map(row => ({
+        data: rows.map((row) => ({
           userId: row.id,
           name: `${row.first_name} ${row.last_name}`,
           email: row.email,
@@ -334,11 +335,11 @@ class AnalyticsService {
             totalCartAdditions: parseInt(row.total_cart_additions),
             totalOrdersPlaced: parseInt(row.total_orders_placed),
             totalTimeSpent: parseInt(row.total_time_spent),
-            avgSessionDuration: row.total_sessions > 0 
+            avgSessionDuration: row.total_sessions > 0
               ? (row.total_time_spent / row.total_sessions).toFixed(2)
               : 0,
             conversionRate: row.total_products_viewed > 0
-              ? (row.total_orders_placed / row.total_products_viewed * 100).toFixed(2)
+              ? ((row.total_orders_placed / row.total_products_viewed) * 100).toFixed(2)
               : 0
           }
         })),
@@ -360,7 +361,7 @@ class AnalyticsService {
           FROM orders 
           WHERE DATE(created_at) = CURRENT_DATE
         `),
-        
+
         // Today's payments
         db.query(`
           SELECT 
@@ -371,7 +372,7 @@ class AnalyticsService {
           WHERE DATE(created_at) = CURRENT_DATE
           GROUP BY payment_method
         `),
-        
+
         // Active users (last 24 hours)
         db.query(`
           SELECT COUNT(DISTINCT actor_id) as active_users
@@ -380,14 +381,14 @@ class AnalyticsService {
             AND actor_type = 'user'
             AND actor_id IS NOT NULL
         `),
-        
+
         // Pending deliveries
         db.query(`
           SELECT COUNT(*) as pending_deliveries
           FROM deliveries 
           WHERE status IN ('pending', 'assigned', 'picked_up', 'in_transit')
         `),
-        
+
         // Top products today
         db.query(`
           SELECT 
@@ -414,15 +415,15 @@ class AnalyticsService {
             count: parseInt(ordersData.rows[0].count),
             revenue: parseFloat(ordersData.rows[0].revenue)
           },
-          paymentMethods: paymentsData.rows.map(row => ({
+          paymentMethods: paymentsData.rows.map((row) => ({
             method: row.payment_method,
             attempts: parseInt(row.attempts),
             successful: parseInt(row.successful),
-            successRate: row.attempts > 0 ? (row.successful / row.attempts * 100).toFixed(2) : 0
+            successRate: row.attempts > 0 ? ((row.successful / row.attempts) * 100).toFixed(2) : 0
           })),
           activeUsers24h: parseInt(activeUsersData.rows[0].active_users),
           pendingDeliveries: parseInt(deliveriesData.rows[0].pending_deliveries),
-          topProducts: topProductsData.rows.map(row => ({
+          topProducts: topProductsData.rows.map((row) => ({
             title: row.title,
             orders: parseInt(row.orders),
             revenue: parseFloat(row.revenue)
@@ -439,7 +440,7 @@ class AnalyticsService {
   async updateProductAnalytics(productId, eventType, metadata = {}) {
     try {
       const date = new Date().toISOString().split('T')[0];
-      
+
       let updateField = '';
       switch (eventType) {
         case 'view':
@@ -459,7 +460,10 @@ class AnalyticsService {
       }
 
       const query = `
-        INSERT INTO product_analytics (product_id, date, ${eventType === 'order' ? 'orders, revenue' : eventType.replace('_add', '_additions')})
+        INSERT INTO product_analytics (
+          product_id, date, 
+          ${eventType === 'order' ? 'orders, revenue' : eventType.replace('_add', '_additions')}
+        )
         VALUES ($1, $2, ${eventType === 'order' ? '1, $3' : '1'})
         ON CONFLICT (product_id, date)
         DO UPDATE SET ${updateField}, updated_at = CURRENT_TIMESTAMP
@@ -481,7 +485,6 @@ class AnalyticsService {
         targetType: 'product',
         eventData: { analyticsType: 'product', eventType, metadata }
       });
-
     } catch (error) {
       console.error('Product analytics update error:', error);
     }
@@ -495,7 +498,7 @@ class AnalyticsService {
       const dateStr = yesterday.toISOString().split('T')[0];
 
       await this.calculateDailyStats(dateStr);
-      
+
       console.log(`✅ Daily analytics calculated for ${dateStr}`);
       return { success: true, date: dateStr };
     } catch (error) {
@@ -554,7 +557,6 @@ class AnalyticsService {
           recordCount: data.data.length
         }
       };
-
     } catch (error) {
       console.error('Analytics export error:', error);
       throw new Error('Failed to generate analytics export');
@@ -568,13 +570,13 @@ class AnalyticsService {
     const headers = Object.keys(data[0]);
     const csvRows = [headers.join(',')];
 
-    for (const row of data) {
-      const values = headers.map(header => {
+    data.forEach((row) => {
+      const values = headers.map((header) => {
         const value = row[header];
         return typeof value === 'string' ? `"${value}"` : value;
       });
       csvRows.push(values.join(','));
-    }
+    });
 
     return csvRows.join('\n');
   }

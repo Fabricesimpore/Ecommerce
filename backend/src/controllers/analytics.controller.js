@@ -10,9 +10,9 @@ class AnalyticsController {
   static async getDashboard(req, res) {
     try {
       const { days = 30 } = req.query;
-      
+
       const startTime = Date.now();
-      
+
       // Get multiple analytics data in parallel
       const [
         summary,
@@ -20,7 +20,7 @@ class AnalyticsController {
         realTimeMetrics
       ] = await Promise.all([
         analyticsService.getAnalyticsSummary(),
-        analyticsService.getDailyOverview(parseInt(days)),
+        analyticsService.getDailyOverview(parseInt(days, 10)),
         analyticsService.getRealTimeDashboard()
       ]);
 
@@ -30,7 +30,7 @@ class AnalyticsController {
         req.user.id,
         null,
         'analytics',
-        { days: parseInt(days), duration_ms: Date.now() - startTime },
+        { days: parseInt(days, 10), duration_ms: Date.now() - startTime },
         req
       );
 
@@ -45,7 +45,10 @@ class AnalyticsController {
         }
       });
     } catch (error) {
-      console.error('Dashboard analytics error:', error);
+      if (process.env.NODE_ENV !== 'test') {
+        // eslint-disable-next-line no-console
+        console.error('Dashboard analytics error:', error);
+      }
       res.status(500).json({
         success: false,
         message: 'Failed to load dashboard analytics'
@@ -57,10 +60,10 @@ class AnalyticsController {
   static async getProductAnalytics(req, res) {
     try {
       const { productId, days = 30 } = req.query;
-      
+
       const analytics = await analyticsService.getProductAnalytics(
-        productId ? parseInt(productId) : null,
-        parseInt(days)
+        productId ? parseInt(productId, 10) : null,
+        parseInt(days, 10)
       );
 
       await new EventLogger().logAdminAction(
@@ -68,7 +71,7 @@ class AnalyticsController {
         req.user.id,
         productId || null,
         'product',
-        { days: parseInt(days) },
+        { days: parseInt(days, 10) },
         req
       );
 
@@ -90,7 +93,7 @@ class AnalyticsController {
   static async getVendorAnalytics(req, res) {
     try {
       const { vendorId, days = 30 } = req.query;
-      
+
       const analytics = await analyticsService.getVendorAnalytics(
         vendorId ? parseInt(vendorId) : null,
         parseInt(days)
@@ -123,7 +126,7 @@ class AnalyticsController {
   static async getPaymentAnalytics(req, res) {
     try {
       const { days = 30 } = req.query;
-      
+
       const analytics = await analyticsService.getPaymentAnalytics(parseInt(days));
 
       await new EventLogger().logAdminAction(
@@ -153,7 +156,7 @@ class AnalyticsController {
   static async getUserAnalytics(req, res) {
     try {
       const { userId, days = 30 } = req.query;
-      
+
       const analytics = await analyticsService.getUserBehaviorAnalytics(
         userId ? parseInt(userId) : null,
         parseInt(days)
@@ -205,7 +208,7 @@ class AnalyticsController {
   static async calculateDailyStats(req, res) {
     try {
       const { date } = req.body;
-      
+
       const result = await analyticsService.calculateDailyStats(date);
 
       await new EventLogger().logAdminAction(
@@ -235,7 +238,7 @@ class AnalyticsController {
   static async exportAnalytics(req, res) {
     try {
       const { type = 'overview', format = 'json', startDate, endDate } = req.query;
-      
+
       const exportData = await analyticsService.getAnalyticsExport(
         type,
         startDate,
@@ -248,10 +251,10 @@ class AnalyticsController {
         req.user.id,
         null,
         'analytics',
-        { 
-          export_type: type, 
-          format, 
-          start_date: startDate, 
+        {
+          export_type: type,
+          format,
+          start_date: startDate,
           end_date: endDate,
           record_count: exportData.data?.length || 0
         },
@@ -285,7 +288,7 @@ class AnalyticsController {
   static async getAnalyticsSummary(req, res) {
     try {
       const { startDate, endDate } = req.query;
-      
+
       const summary = await analyticsService.getAnalyticsSummary(startDate, endDate);
 
       res.json({
@@ -357,7 +360,7 @@ class AnalyticsController {
   static async getEventStatistics(req, res) {
     try {
       const { days = 30 } = req.query;
-      
+
       const eventLogger = new EventLogger();
       const stats = await eventLogger.getEventStatistics(parseInt(days));
 
@@ -419,7 +422,7 @@ class AnalyticsController {
   static async cleanupOldEvents(req, res) {
     try {
       const { retentionDays = 90 } = req.body;
-      
+
       const eventLogger = new EventLogger();
       const result = await eventLogger.cleanupOldEvents(parseInt(retentionDays));
 
@@ -428,9 +431,9 @@ class AnalyticsController {
         req.user.id,
         null,
         'system',
-        { 
-          retention_days: retentionDays, 
-          deleted_count: result.deletedCount 
+        {
+          retention_days: retentionDays,
+          deleted_count: result.deletedCount
         },
         req
       );

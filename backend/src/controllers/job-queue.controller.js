@@ -10,9 +10,9 @@ class JobQueueController {
   static async getJobStatus(req, res) {
     try {
       const { jobName } = req.query;
-      
+
       const status = jobQueueService.getJobStatus(jobName);
-      
+
       if (jobName && !status) {
         return res.status(404).json({
           success: false,
@@ -37,9 +37,9 @@ class JobQueueController {
   static async getJobHistory(req, res) {
     try {
       const { limit = 50 } = req.query;
-      
+
       const history = jobQueueService.getJobHistory(parseInt(limit));
-      
+
       res.json({
         success: true,
         data: history,
@@ -61,7 +61,7 @@ class JobQueueController {
   static async getSystemStats(req, res) {
     try {
       const stats = jobQueueService.getSystemStats();
-      
+
       res.json({
         success: true,
         data: stats,
@@ -80,7 +80,7 @@ class JobQueueController {
   static async triggerJob(req, res) {
     try {
       const { jobName } = req.params;
-      
+
       await jobQueueService.triggerJob(jobName);
 
       // Log the manual trigger
@@ -110,7 +110,7 @@ class JobQueueController {
   static async stopJob(req, res) {
     try {
       const { jobName } = req.params;
-      
+
       jobQueueService.stopJob(jobName);
 
       // Log the stop action
@@ -140,7 +140,7 @@ class JobQueueController {
   static async startJob(req, res) {
     try {
       const { jobName } = req.params;
-      
+
       jobQueueService.startJob(jobName);
 
       // Log the start action
@@ -277,11 +277,11 @@ class JobQueueController {
         req.user.id,
         null,
         'job',
-        { 
-          job_name: jobName, 
-          job_type: jobType, 
+        {
+          job_name: jobName,
+          job_type: jobType,
           delay,
-          parameters 
+          parameters
         },
         req
       );
@@ -310,7 +310,7 @@ class JobQueueController {
     try {
       const stats = jobQueueService.getSystemStats();
       const recentFailures = jobQueueService.getJobHistory(10)
-        .filter(job => job.status === 'failed');
+        .filter((job) => job.status === 'failed');
 
       const healthStatus = {
         status: stats.isRunning ? 'healthy' : 'stopped',

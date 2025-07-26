@@ -4,7 +4,7 @@ class DeliveryController {
   static async applyAsDriver(req, res, next) {
     try {
       const { nationalId, vehicleType, licenseNumber } = req.body;
-      
+
       if (!nationalId || !vehicleType || !licenseNumber) {
         return res.status(400).json({
           success: false,
@@ -17,7 +17,7 @@ class DeliveryController {
         vehicleType,
         licenseNumber
       });
-      
+
       res.status(200).json({
         success: true,
         message: 'Driver application submitted successfully. Awaiting approval.',
@@ -31,17 +31,15 @@ class DeliveryController {
   static async getAvailableDeliveries(req, res, next) {
     try {
       const { region } = req.query;
-      
+
       const deliveries = await DeliveryService.getAvailableDeliveries(
-        req.userId, 
+        req.userId,
         region
       );
-      
+
       res.status(200).json({
         success: true,
-        data: {
-          deliveries: deliveries.map(d => d.toJSON())
-        }
+        data: { deliveries: deliveries.map((d) => d.toJSON()) }
       });
     } catch (error) {
       next(error);
@@ -51,9 +49,9 @@ class DeliveryController {
   static async acceptDelivery(req, res, next) {
     try {
       const { deliveryId } = req.params;
-      
+
       const delivery = await DeliveryService.acceptDelivery(deliveryId, req.userId);
-      
+
       res.status(200).json({
         success: true,
         message: 'Delivery accepted successfully',
@@ -68,7 +66,7 @@ class DeliveryController {
     try {
       const { deliveryId } = req.params;
       const { status, deliverySignature, deliveryPhotoUrl, deliveryNotes } = req.body;
-      
+
       if (!status) {
         return res.status(400).json({
           success: false,
@@ -82,12 +80,12 @@ class DeliveryController {
       if (deliveryNotes) updateData.deliveryNotes = deliveryNotes;
 
       const delivery = await DeliveryService.updateDeliveryStatus(
-        deliveryId, 
-        status, 
-        req.userId, 
+        deliveryId,
+        status,
+        req.userId,
         updateData
       );
-      
+
       res.status(200).json({
         success: true,
         message: 'Delivery status updated successfully',
@@ -113,11 +111,11 @@ class DeliveryController {
       };
 
       const deliveries = await DeliveryService.getDriverDeliveries(req.userId, options);
-      
+
       res.status(200).json({
         success: true,
         data: {
-          deliveries: deliveries.map(d => d.toJSON()),
+          deliveries: deliveries.map((d) => d.toJSON()),
           pagination: {
             page: parseInt(page),
             limit: parseInt(limit),
@@ -133,9 +131,9 @@ class DeliveryController {
   static async getMyStats(req, res, next) {
     try {
       const { period = 'month' } = req.query;
-      
+
       const stats = await DeliveryService.getDriverStats(req.userId, period);
-      
+
       res.status(200).json({
         success: true,
         data: { stats }
@@ -148,13 +146,13 @@ class DeliveryController {
   static async trackDelivery(req, res, next) {
     try {
       const { deliveryId } = req.params;
-      
+
       const delivery = await DeliveryService.trackDelivery(
-        deliveryId, 
-        req.userId, 
+        deliveryId,
+        req.userId,
         req.user.role
       );
-      
+
       res.status(200).json({
         success: true,
         data: { delivery: delivery.toJSON() }
@@ -182,11 +180,11 @@ class DeliveryController {
       };
 
       const deliveries = await DeliveryService.getAllDeliveries(options);
-      
+
       res.status(200).json({
         success: true,
         data: {
-          deliveries: deliveries.map(d => d.toJSON()),
+          deliveries: deliveries.map((d) => d.toJSON()),
           pagination: {
             page: parseInt(page),
             limit: parseInt(limit),
@@ -202,9 +200,9 @@ class DeliveryController {
   static async approveDriver(req, res, next) {
     try {
       const { driverId } = req.params;
-      
+
       const driver = await DeliveryService.approveDriver(driverId);
-      
+
       res.status(200).json({
         success: true,
         message: 'Driver approved successfully',
@@ -219,15 +217,15 @@ class DeliveryController {
     try {
       const { driverId } = req.params;
       const { reason } = req.body;
-      
+
       const driver = await DeliveryService.suspendDriver(driverId, reason);
-      
+
       res.status(200).json({
         success: true,
         message: 'Driver suspended successfully',
-        data: { 
+        data: {
           driver: driver.toJSON(),
-          reason 
+          reason
         }
       });
     } catch (error) {
@@ -238,9 +236,9 @@ class DeliveryController {
   static async getDeliveryAnalytics(req, res, next) {
     try {
       const { period = 'month' } = req.query;
-      
+
       const analytics = await DeliveryService.getDeliveryAnalytics(period);
-      
+
       res.status(200).json({
         success: true,
         data: { analytics }
@@ -253,7 +251,7 @@ class DeliveryController {
   static async runAutoMatch(req, res, next) {
     try {
       const matches = await DeliveryService.autoMatchDeliveries();
-      
+
       res.status(200).json({
         success: true,
         message: `Successfully matched ${matches.length} deliveries`,

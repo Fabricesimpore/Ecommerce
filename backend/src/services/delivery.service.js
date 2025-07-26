@@ -15,7 +15,7 @@ class DeliveryService {
     }
 
     const { nationalId, vehicleType, licenseNumber } = applicationData;
-    
+
     if (!nationalId || !vehicleType || !licenseNumber) {
       throw new Error('National ID, vehicle type, and license number are required');
     }
@@ -30,11 +30,11 @@ class DeliveryService {
            metadata = COALESCE(metadata, '{}') || $2
        WHERE id = $3`,
       [
-        nationalId, 
-        JSON.stringify({ 
-          vehicleType, 
-          licenseNumber, 
-          applicationDate: new Date().toISOString() 
+        nationalId,
+        JSON.stringify({
+          vehicleType,
+          licenseNumber,
+          applicationDate: new Date().toISOString()
         }),
         userId
       ]
@@ -125,8 +125,8 @@ class DeliveryService {
       if (!order) {
         throw new Error('Order not found');
       }
-      
-      const hasItems = order.items.some(item => item.vendorId === userId);
+
+      const hasItems = order.items.some((item) => item.vendorId === userId);
       if (!hasItems) {
         throw new Error('You can only track deliveries for your products');
       }
@@ -141,49 +141,59 @@ class DeliveryService {
   static async autoMatchDeliveries() {
     // Get all pending deliveries
     const pendingDeliveries = await Delivery.findAvailableDeliveries();
-    
+
     // Get all active drivers
     const activeDrivers = await User.getByRole('driver', { status: 'active' });
-    
+
     const matches = [];
-    
-    for (const delivery of pendingDeliveries) {
+
+    // Get busy drivers before the loop
+    const busyDriverQuery = `
+      SELECT DISTINCT driver_id 
+      FROM deliveries 
+      WHERE status IN ('assigned', 'picked_up', 'in_transit')
+    `;
+
+    const db = require('../config/database.config');
+    const { rows: busyDrivers } = await db.query(busyDriverQuery);
+    const busyDriverIds = busyDrivers.map((row) => row.driver_id);
+
+    const availableDrivers = activeDrivers.filter(
+      (driver) => !busyDriverIds.includes(driver.id)
+    );
+
+    // Process deliveries sequentially to avoid conflicts
+    let driverIndex = 0;
+    const assignmentPromises = pendingDeliveries.map(async (delivery) => {
       // Simple matching algorithm - in production, this would be more sophisticated
       // considering location, driver capacity, etc.
-      
-      // Find drivers not currently assigned to other deliveries
-      const busyDriverQuery = `
-        SELECT DISTINCT driver_id 
-        FROM deliveries 
-        WHERE status IN ('assigned', 'picked_up', 'in_transit')
-      `;
-      
-      const db = require('../config/database.config');
-      const { rows: busyDrivers } = await db.query(busyDriverQuery);
-      const busyDriverIds = busyDrivers.map(row => row.driver_id);
-      
-      const availableDrivers = activeDrivers.filter(
-        driver => !busyDriverIds.includes(driver.id)
-      );
-      
-      if (availableDrivers.length > 0) {
-        // For now, assign to first available driver
+
+      if (driverIndex < availableDrivers.length) {
+        // For now, assign to next available driver
         // In production, you'd consider proximity, ratings, etc.
-        const selectedDriver = availableDrivers[0];
-        
+        const selectedDriver = availableDrivers[driverIndex];
+        driverIndex += 1;
+
         try {
           await delivery.assignToDriver(selectedDriver.id);
-          matches.push({
+          return {
             deliveryId: delivery.id,
             driverId: selectedDriver.id,
             orderId: delivery.orderId
-          });
+          };
         } catch (error) {
           console.error(`Failed to assign delivery ${delivery.id}:`, error.message);
+          return null;
         }
       }
-    }
-    
+      return null;
+    });
+
+    const results = await Promise.all(assignmentPromises);
+    results.forEach((match) => {
+      if (match) matches.push(match);
+    });
+
     return matches;
   }
 
@@ -191,7 +201,7 @@ class DeliveryService {
   static async getDeliveryAnalytics(period = 'month') {
     let dateFilter = '';
     const now = new Date();
-    
+
     if (period === 'week') {
       const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
       dateFilter = `AND d.created_at >= '${weekAgo.toISOString()}'`;
@@ -218,7 +228,7 @@ class DeliveryService {
 
     const db = require('../config/database.config');
     const { rows } = await db.query(query);
-    
+
     return {
       totalDeliveries: parseInt(rows[0].total_deliveries),
       completedDeliveries: parseInt(rows[0].completed_deliveries),
@@ -228,7 +238,7 @@ class DeliveryService {
       totalDeliveryFees: parseFloat(rows[0].total_delivery_fees),
       totalDriverEarnings: parseFloat(rows[0].total_driver_earnings),
       averageDeliveryTime: parseFloat(rows[0].avg_delivery_time_minutes),
-      successRate: parseInt(rows[0].total_deliveries) > 0 
+      successRate: parseInt(rows[0].total_deliveries) > 0
         ? ((parseInt(rows[0].completed_deliveries) / parseInt(rows[0].total_deliveries)) * 100).toFixed(2)
         : 0
     };
@@ -244,20 +254,18 @@ class DeliveryService {
     return await driver.updateStatus('active');
   }
 
-  static async suspendDriver(driverId, reason = null) {
+  static async suspendDriver(driverId) {
     const driver = await User.findById(driverId);
     if (!driver || driver.role !== 'driver') {
       throw new Error('Driver not found');
     }
 
     // Cancel any active deliveries
-    const activeDeliveries = await Delivery.findByDriver(driverId, {
-      status: ['assigned', 'picked_up', 'in_transit']
-    });
+    const activeDeliveries = await Delivery.findByDriver(driverId, { status: ['assigned', 'picked_up', 'in_transit'] });
 
-    for (const delivery of activeDeliveries) {
-      await delivery.updateStatus('failed');
-    }
+    await Promise.all(
+      activeDeliveries.map((delivery) => delivery.updateStatus('failed'))
+    );
 
     return await driver.updateStatus('suspended');
   }
@@ -310,8 +318,8 @@ class DeliveryService {
 
     const db = require('../config/database.config');
     const { rows } = await db.query(query, values);
-    
-    return rows.map(row => new Delivery(row));
+
+    return rows.map((row) => new Delivery(row));
   }
 }
 

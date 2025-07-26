@@ -56,8 +56,8 @@ class Delivery {
     return rows.length ? new Delivery(rows[0]) : null;
   }
 
-  static async findAvailableDeliveries(driverRegion = null, limit = 20) {
-    let query = `
+  static async findAvailableDeliveries(limit = 20) {
+    const query = `
       SELECT d.*,
         JSON_BUILD_OBJECT(
           'id', o.id,
@@ -75,12 +75,12 @@ class Delivery {
     `;
 
     const { rows } = await db.query(query, [limit]);
-    return rows.map(row => new Delivery(row));
+    return rows.map((row) => new Delivery(row));
   }
 
   static async findByDriver(driverId, options = {}) {
     const { status = null, limit = 20, offset = 0 } = options;
-    
+
     let query = `
       SELECT d.*,
         JSON_BUILD_OBJECT(
@@ -95,22 +95,22 @@ class Delivery {
       JOIN orders o ON d.order_id = o.id
       WHERE d.driver_id = $1
     `;
-    
+
     const values = [driverId];
-    
+
     if (status) {
       query += ' AND d.status = $2';
       values.push(status);
     }
-    
+
     query += ` 
       ORDER BY d.created_at DESC 
       LIMIT $${values.length + 1} OFFSET $${values.length + 2}
     `;
     values.push(limit, offset);
-    
+
     const { rows } = await db.query(query, values);
-    return rows.map(row => new Delivery(row));
+    return rows.map((row) => new Delivery(row));
   }
 
   async assignToDriver(driverId) {
@@ -128,7 +128,7 @@ class Delivery {
       WHERE id = $1 AND role = 'driver' AND status = 'active'
     `;
     const { rows: driverRows } = await db.query(driverQuery, [driverId]);
-    
+
     if (!driverRows.length) {
       throw new Error('Driver not found or not active');
     }
@@ -152,12 +152,12 @@ class Delivery {
 
   async updateStatus(newStatus, updateData = {}) {
     const allowedTransitions = {
-      'pending': ['assigned'],
-      'assigned': ['picked_up', 'failed'],
-      'picked_up': ['in_transit', 'failed'],
-      'in_transit': ['delivered', 'failed'],
-      'delivered': [],
-      'failed': ['pending'] // Can be reassigned
+      pending: ['assigned'],
+      assigned: ['picked_up', 'failed'],
+      picked_up: ['in_transit', 'failed'],
+      in_transit: ['delivered', 'failed'],
+      delivered: [],
+      failed: ['pending'] // Can be reassigned
     };
 
     if (!allowedTransitions[this.status].includes(newStatus)) {
@@ -173,20 +173,20 @@ class Delivery {
       query += ', pickup_time = CURRENT_TIMESTAMP';
     } else if (newStatus === 'delivered') {
       query += ', delivery_time = CURRENT_TIMESTAMP';
-      
+
       // Add delivery confirmation data
       if (updateData.deliverySignature) {
         paramCount++;
         query += `, delivery_signature = $${paramCount}`;
         values.splice(-1, 0, JSON.stringify(updateData.deliverySignature));
       }
-      
+
       if (updateData.deliveryPhotoUrl) {
         paramCount++;
         query += `, delivery_photo_url = $${paramCount}`;
         values.splice(-1, 0, updateData.deliveryPhotoUrl);
       }
-      
+
       if (updateData.deliveryNotes) {
         paramCount++;
         query += `, delivery_notes = $${paramCount}`;
@@ -201,7 +201,7 @@ class Delivery {
 
     const { rows } = await db.query(query, values);
     Object.assign(this, new Delivery(rows[0]));
-    
+
     // Update order status if delivery is completed
     if (newStatus === 'delivered') {
       await db.query(
@@ -216,7 +216,7 @@ class Delivery {
   async calculateRoute() {
     // This is a simplified version. In production, you'd use a real routing service
     // like Google Maps API, Mapbox, or OpenRouteService
-    
+
     if (!this.deliveryAddress || !this.pickupAddress) {
       return this;
     }
@@ -242,7 +242,7 @@ class Delivery {
   static async getDriverStats(driverId, period = 'month') {
     let dateFilter = '';
     const now = new Date();
-    
+
     if (period === 'week') {
       const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
       dateFilter = `AND d.created_at >= '${weekAgo.toISOString()}'`;
@@ -266,7 +266,7 @@ class Delivery {
     `;
 
     const { rows } = await db.query(query, [driverId]);
-    
+
     return {
       totalDeliveries: parseInt(rows[0].total_deliveries),
       completedDeliveries: parseInt(rows[0].completed_deliveries),
@@ -274,8 +274,8 @@ class Delivery {
       totalEarnings: parseFloat(rows[0].total_earnings),
       averageDistance: parseFloat(rows[0].avg_distance),
       averageDeliveryTime: parseFloat(rows[0].avg_delivery_time_minutes),
-      successRate: parseInt(rows[0].total_deliveries) > 0 
-        ? (parseInt(rows[0].completed_deliveries) / parseInt(rows[0].total_deliveries) * 100).toFixed(2)
+      successRate: parseInt(rows[0].total_deliveries) > 0
+        ? ((parseInt(rows[0].completed_deliveries) / parseInt(rows[0].total_deliveries)) * 100).toFixed(2)
         : 0
     };
   }

@@ -4,7 +4,7 @@ class CartController {
   static async getCart(req, res, next) {
     try {
       const cart = await Cart.getByUserId(req.userId);
-      
+
       res.status(200).json({
         success: true,
         data: { cart: cart ? cart.toJSON() : null }
@@ -17,7 +17,7 @@ class CartController {
   static async addToCart(req, res, next) {
     try {
       const { productId, quantity = 1 } = req.body;
-      
+
       if (!productId) {
         return res.status(400).json({
           success: false,
@@ -33,7 +33,7 @@ class CartController {
       }
 
       const cart = await Cart.addItem(req.userId, productId, quantity);
-      
+
       res.status(200).json({
         success: true,
         message: 'Item added to cart successfully',
@@ -48,7 +48,7 @@ class CartController {
     try {
       const { itemId } = req.params;
       const { quantity } = req.body;
-      
+
       if (!quantity || quantity < 0) {
         return res.status(400).json({
           success: false,
@@ -57,7 +57,7 @@ class CartController {
       }
 
       const cart = await Cart.updateItem(req.userId, itemId, quantity);
-      
+
       res.status(200).json({
         success: true,
         message: 'Cart item updated successfully',
@@ -71,9 +71,9 @@ class CartController {
   static async removeFromCart(req, res, next) {
     try {
       const { itemId } = req.params;
-      
+
       const cart = await Cart.removeItem(req.userId, itemId);
-      
+
       res.status(200).json({
         success: true,
         message: 'Item removed from cart successfully',
@@ -87,7 +87,7 @@ class CartController {
   static async clearCart(req, res, next) {
     try {
       const cart = await Cart.clear(req.userId);
-      
+
       res.status(200).json({
         success: true,
         message: 'Cart cleared successfully',
@@ -101,7 +101,7 @@ class CartController {
   static async validateCart(req, res, next) {
     try {
       const cart = await Cart.getByUserId(req.userId);
-      
+
       if (!cart) {
         return res.status(404).json({
           success: false,
@@ -110,7 +110,7 @@ class CartController {
       }
 
       const validation = await cart.validateForCheckout();
-      
+
       res.status(200).json({
         success: true,
         data: {

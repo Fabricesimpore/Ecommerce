@@ -32,7 +32,7 @@ class Order {
 
   static async create(orderData) {
     const client = await db.getClient();
-    
+
     try {
       await client.query('BEGIN');
 
@@ -56,42 +56,53 @@ class Order {
       const processedItems = [];
 
       // Process each item and verify inventory
-      for (const item of items) {
-        const productQuery = 'SELECT * FROM products WHERE id = $1 AND status = $2';
-        const { rows: productRows } = await client.query(productQuery, [item.productId, 'active']);
-        
-        if (!productRows.length) {
-          throw new Error(`Product ${item.productId} not found or not available`);
-        }
+      const productChecks = await Promise.all(
+        items.map(async (item) => {
+          const productQuery = 'SELECT * FROM products WHERE id = $1 AND status = $2';
+          const { rows: productRows } = await client.query(productQuery, [item.productId, 'active']);
 
-        const product = productRows[0];
-        
-        // Check inventory
-        if (product.track_inventory && product.quantity < item.quantity && !product.allow_backorder) {
-          throw new Error(`Insufficient inventory for product "${product.title}"`);
-        }
-
-        const itemTotal = parseFloat(product.price) * item.quantity;
-        subtotal += itemTotal;
-
-        processedItems.push({
-          productId: product.id,
-          vendorId: product.vendor_id,
-          productTitle: product.title,
-          productDescription: product.description,
-          quantity: item.quantity,
-          unitPrice: parseFloat(product.price),
-          totalPrice: itemTotal,
-          productSnapshot: {
-            title: product.title,
-            description: product.description,
-            price: product.price,
-            images: product.images,
-            category: product.category,
-            tags: product.tags
+          if (!productRows.length) {
+            throw new Error(`Product ${item.productId} not found or not available`);
           }
-        });
-      }
+
+          const product = productRows[0];
+
+          // Check inventory
+          if (product.track_inventory && product.quantity < item.quantity && !product.allow_backorder) {
+            throw new Error(`Insufficient inventory for product "${product.title}"`);
+          }
+
+          const itemTotal = parseFloat(product.price) * item.quantity;
+
+          return {
+            product,
+            item,
+            itemTotal,
+            processedItem: {
+              productId: product.id,
+              vendorId: product.vendor_id,
+              productTitle: product.title,
+              productDescription: product.description,
+              quantity: item.quantity,
+              unitPrice: parseFloat(product.price),
+              totalPrice: itemTotal,
+              productSnapshot: {
+                title: product.title,
+                description: product.description,
+                price: product.price,
+                images: product.images,
+                category: product.category,
+                tags: product.tags
+              }
+            }
+          };
+        })
+      );
+
+      productChecks.forEach(({ itemTotal, processedItem }) => {
+        subtotal += itemTotal;
+        processedItems.push(processedItem);
+      });
 
       // Calculate shipping and tax (simplified for now)
       const shippingCost = shippingMethod === 'express' ? 5.00 : 2.00;
@@ -117,29 +128,31 @@ class Order {
       const order = orderRows[0];
 
       // Add order items
-      for (const item of processedItems) {
-        const itemQuery = `
-          INSERT INTO order_items (
-            order_id, product_id, vendor_id, product_title, product_description,
-            quantity, unit_price, total_price, product_snapshot
-          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-        `;
+      await Promise.all(
+        processedItems.map(async (item) => {
+          const itemQuery = `
+            INSERT INTO order_items (
+              order_id, product_id, vendor_id, product_title, product_description,
+              quantity, unit_price, total_price, product_snapshot
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+          `;
 
-        await client.query(itemQuery, [
-          order.id, item.productId, item.vendorId, item.productTitle,
-          item.productDescription, item.quantity, item.unitPrice,
-          item.totalPrice, JSON.stringify(item.productSnapshot)
-        ]);
+          await client.query(itemQuery, [
+            order.id, item.productId, item.vendorId, item.productTitle,
+            item.productDescription, item.quantity, item.unitPrice,
+            item.totalPrice, JSON.stringify(item.productSnapshot)
+          ]);
 
-        // Decrease inventory if tracking is enabled
-        const product = await client.query('SELECT * FROM products WHERE id = $1', [item.productId]);
-        if (product.rows[0].track_inventory) {
-          await client.query(
-            'UPDATE products SET quantity = quantity - $1 WHERE id = $2',
-            [item.quantity, item.productId]
-          );
-        }
-      }
+          // Decrease inventory if tracking is enabled
+          const product = await client.query('SELECT * FROM products WHERE id = $1', [item.productId]);
+          if (product.rows[0].track_inventory) {
+            await client.query(
+              'UPDATE products SET quantity = quantity - $1 WHERE id = $2',
+              [item.quantity, item.productId]
+            );
+          }
+        })
+      );
 
       // Create delivery record
       const deliveryQuery = `
@@ -153,7 +166,7 @@ class Order {
       ]);
 
       await client.query('COMMIT');
-      
+
       // Return full order with items
       return await Order.findById(order.id);
     } catch (error) {
@@ -197,7 +210,7 @@ class Order {
     // Get delivery info
     const deliveryQuery = 'SELECT * FROM deliveries WHERE order_id = $1';
     const { rows: deliveryRows } = await db.query(deliveryQuery, [id]);
-    
+
     const orderData = {
       ...rows[0],
       delivery: deliveryRows.length > 0 ? deliveryRows[0] : null
@@ -208,7 +221,7 @@ class Order {
 
   static async findByUser(userId, options = {}) {
     const { status = null, limit = 20, offset = 0 } = options;
-    
+
     let query = `
       SELECT o.*, 
         COALESCE(
@@ -227,28 +240,28 @@ class Order {
       LEFT JOIN order_items oi ON o.id = oi.order_id
       WHERE o.buyer_id = $1
     `;
-    
+
     const values = [userId];
-    
+
     if (status) {
       query += ' AND o.status = $2';
       values.push(status);
     }
-    
+
     query += ` 
       GROUP BY o.id 
       ORDER BY o.created_at DESC 
       LIMIT $${values.length + 1} OFFSET $${values.length + 2}
     `;
     values.push(limit, offset);
-    
+
     const { rows } = await db.query(query, values);
-    return rows.map(row => new Order(row));
+    return rows.map((row) => new Order(row));
   }
 
   static async findByVendor(vendorId, options = {}) {
     const { status = null, limit = 20, offset = 0 } = options;
-    
+
     let query = `
       SELECT DISTINCT o.*, 
         COALESCE(
@@ -267,33 +280,33 @@ class Order {
       JOIN order_items oi ON o.id = oi.order_id
       WHERE oi.vendor_id = $1
     `;
-    
+
     const values = [vendorId];
-    
+
     if (status) {
       query += ' AND o.status = $2';
       values.push(status);
     }
-    
+
     query += ` 
       GROUP BY o.id 
       ORDER BY o.created_at DESC 
       LIMIT $${values.length + 1} OFFSET $${values.length + 2}
     `;
     values.push(limit, offset);
-    
+
     const { rows } = await db.query(query, values);
-    return rows.map(row => new Order(row));
+    return rows.map((row) => new Order(row));
   }
 
   async updateStatus(newStatus) {
     const allowedTransitions = {
-      'pending': ['confirmed', 'cancelled'],
-      'confirmed': ['processing', 'cancelled'],
-      'processing': ['shipped', 'cancelled'],
-      'shipped': ['delivered', 'cancelled'],
-      'delivered': [],
-      'cancelled': []
+      pending: ['confirmed', 'cancelled'],
+      confirmed: ['processing', 'cancelled'],
+      processing: ['shipped', 'cancelled'],
+      shipped: ['delivered', 'cancelled'],
+      delivered: [],
+      cancelled: []
     };
 
     if (!allowedTransitions[this.status].includes(newStatus)) {
@@ -301,10 +314,10 @@ class Order {
     }
 
     const timestampField = {
-      'confirmed': 'confirmed_at',
-      'shipped': 'shipped_at',
-      'delivered': 'delivered_at',
-      'cancelled': 'cancelled_at'
+      confirmed: 'confirmed_at',
+      shipped: 'shipped_at',
+      delivered: 'delivered_at',
+      cancelled: 'cancelled_at'
     }[newStatus];
 
     let query = 'UPDATE orders SET status = $1, updated_at = CURRENT_TIMESTAMP';
@@ -337,7 +350,7 @@ class Order {
       query += ', paid_at = CURRENT_TIMESTAMP';
     }
 
-    query += ' WHERE id = $' + values.length + ' RETURNING *';
+    query += ` WHERE id = $${values.length} RETURNING *`;
 
     const { rows } = await db.query(query, values);
     Object.assign(this, new Order(rows[0]));
@@ -354,7 +367,7 @@ class Order {
     }
 
     const client = await db.getClient();
-    
+
     try {
       await client.query('BEGIN');
 
@@ -371,20 +384,22 @@ class Order {
       const itemsQuery = 'SELECT * FROM order_items WHERE order_id = $1';
       const { rows: items } = await client.query(itemsQuery, [this.id]);
 
-      for (const item of items) {
-        const productQuery = 'SELECT track_inventory FROM products WHERE id = $1';
-        const { rows: productRows } = await client.query(productQuery, [item.product_id]);
-        
-        if (productRows.length > 0 && productRows[0].track_inventory) {
-          await client.query(
-            'UPDATE products SET quantity = quantity + $1 WHERE id = $2',
-            [item.quantity, item.product_id]
-          );
-        }
-      }
+      await Promise.all(
+        items.map(async (item) => {
+          const productQuery = 'SELECT track_inventory FROM products WHERE id = $1';
+          const { rows: productRows } = await client.query(productQuery, [item.product_id]);
+
+          if (productRows.length > 0 && productRows[0].track_inventory) {
+            await client.query(
+              'UPDATE products SET quantity = quantity + $1 WHERE id = $2',
+              [item.quantity, item.product_id]
+            );
+          }
+        })
+      );
 
       await client.query('COMMIT');
-      
+
       // Reload order
       const updatedOrder = await Order.findById(this.id);
       Object.assign(this, updatedOrder);
@@ -399,9 +414,9 @@ class Order {
 
   // Get order summary for vendor
   getVendorSummary(vendorId) {
-    const vendorItems = this.items.filter(item => item.vendorId === vendorId);
+    const vendorItems = this.items.filter((item) => item.vendorId === vendorId);
     const vendorTotal = vendorItems.reduce((sum, item) => sum + item.totalPrice, 0);
-    
+
     return {
       orderId: this.id,
       orderNumber: this.orderNumber,

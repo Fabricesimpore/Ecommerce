@@ -5,7 +5,7 @@ class OrderController {
   static async createOrder(req, res, next) {
     try {
       const { fromCart = true, items, shippingAddress, paymentMethod, notes } = req.body;
-      
+
       if (!shippingAddress) {
         return res.status(400).json({
           success: false,
@@ -21,7 +21,7 @@ class OrderController {
       }
 
       let order;
-      
+
       if (fromCart) {
         // Create order from user's cart
         order = await OrderService.createFromCart(req.userId, {
@@ -45,7 +45,7 @@ class OrderController {
           notes
         });
       }
-      
+
       res.status(201).json({
         success: true,
         message: 'Order created successfully',
@@ -59,9 +59,9 @@ class OrderController {
   static async getOrder(req, res, next) {
     try {
       const { id } = req.params;
-      
+
       const order = await OrderService.getOrder(id, req.userId, req.user.role);
-      
+
       res.status(200).json({
         success: true,
         data: { order: order.toJSON ? order.toJSON() : order }
@@ -86,11 +86,11 @@ class OrderController {
       };
 
       const orders = await OrderService.getUserOrders(req.userId, req.user.role, options);
-      
+
       res.status(200).json({
         success: true,
         data: {
-          orders: orders.map(order => order.toJSON()),
+          orders: orders.map((order) => order.toJSON()),
           pagination: {
             page: parseInt(page),
             limit: parseInt(limit),
@@ -107,7 +107,7 @@ class OrderController {
     try {
       const { id } = req.params;
       const { status } = req.body;
-      
+
       if (!status) {
         return res.status(400).json({
           success: false,
@@ -116,12 +116,12 @@ class OrderController {
       }
 
       const order = await OrderService.updateOrderStatus(
-        id, 
-        status, 
-        req.userId, 
+        id,
+        status,
+        req.userId,
         req.user.role
       );
-      
+
       res.status(200).json({
         success: true,
         message: 'Order status updated successfully',
@@ -136,14 +136,14 @@ class OrderController {
     try {
       const { id } = req.params;
       const { reason } = req.body;
-      
+
       const order = await OrderService.cancelOrder(
-        id, 
-        req.userId, 
-        req.user.role, 
+        id,
+        req.userId,
+        req.user.role,
         reason
       );
-      
+
       res.status(200).json({
         success: true,
         message: 'Order cancelled successfully',
@@ -157,14 +157,14 @@ class OrderController {
   static async trackOrder(req, res, next) {
     try {
       const { orderNumber } = req.params;
-      
+
       // Find order by order number
       const db = require('../config/database.config');
       const { rows } = await db.query(
         'SELECT id FROM orders WHERE order_number = $1',
         [orderNumber]
       );
-      
+
       if (!rows.length) {
         return res.status(404).json({
           success: false,
@@ -173,11 +173,11 @@ class OrderController {
       }
 
       const order = await OrderService.getOrder(rows[0].id, req.userId, req.user.role);
-      
+
       // Get delivery information
       const Delivery = require('../models/delivery.model');
       const delivery = await Delivery.findByOrder(order.id);
-      
+
       res.status(200).json({
         success: true,
         data: {
@@ -199,9 +199,9 @@ class OrderController {
   static async getOrderStats(req, res, next) {
     try {
       const { period = 'month' } = req.query;
-      
+
       const stats = await OrderService.getOrderStats(req.userId, req.user.role, period);
-      
+
       res.status(200).json({
         success: true,
         data: { stats }
@@ -214,13 +214,13 @@ class OrderController {
   static async getRecentOrders(req, res, next) {
     try {
       const { limit = 5 } = req.query;
-      
+
       const orders = await OrderService.getRecentOrders(
-        req.userId, 
-        req.user.role, 
+        req.userId,
+        req.user.role,
         parseInt(limit)
       );
-      
+
       res.status(200).json({
         success: true,
         data: { orders }
@@ -248,7 +248,7 @@ class OrderController {
       };
 
       const orders = await OrderService.getAllOrders(options);
-      
+
       res.status(200).json({
         success: true,
         data: {
@@ -269,7 +269,7 @@ class OrderController {
     try {
       const { id } = req.params;
       const { paymentStatus, paymentReference } = req.body;
-      
+
       if (!paymentStatus) {
         return res.status(400).json({
           success: false,
@@ -278,11 +278,11 @@ class OrderController {
       }
 
       const order = await OrderService.updatePaymentStatus(
-        id, 
-        paymentStatus, 
+        id,
+        paymentStatus,
         paymentReference
       );
-      
+
       res.status(200).json({
         success: true,
         message: 'Payment status updated successfully',
@@ -297,12 +297,12 @@ class OrderController {
   static async initiateOrderPayment(req, res, next) {
     try {
       const { id } = req.params;
-      const { 
-        paymentMethod, 
-        customerPhone, 
-        customerName, 
-        customerEmail, 
-        otpCode 
+      const {
+        paymentMethod,
+        customerPhone,
+        customerName,
+        customerEmail,
+        otpCode
       } = req.body;
 
       // Validate required fields
@@ -322,7 +322,7 @@ class OrderController {
 
       // Get order details
       const order = await OrderService.getOrder(id, req.userId, req.user.role);
-      
+
       if (!order) {
         return res.status(404).json({
           success: false,

@@ -4,7 +4,7 @@ class ProductController {
   static async createProduct(req, res, next) {
     try {
       const product = await ProductService.createProduct(req.userId, req.body);
-      
+
       res.status(201).json({
         success: true,
         message: 'Product created successfully',
@@ -19,9 +19,9 @@ class ProductController {
     try {
       const { id } = req.params;
       const includeVendor = req.query.include === 'vendor';
-      
+
       const product = await ProductService.getProduct(id, includeVendor);
-      
+
       res.status(200).json({
         success: true,
         data: { product: product.toJSON ? product.toJSON() : product }
@@ -35,7 +35,7 @@ class ProductController {
     try {
       const { id } = req.params;
       const product = await ProductService.updateProduct(id, req.userId, req.body);
-      
+
       res.status(200).json({
         success: true,
         message: 'Product updated successfully',
@@ -50,7 +50,7 @@ class ProductController {
     try {
       const { id } = req.params;
       await ProductService.deleteProduct(id, req.userId);
-      
+
       res.status(200).json({
         success: true,
         message: 'Product deleted successfully'
@@ -76,7 +76,10 @@ class ProductController {
       } = req.query;
 
       // Parse tags if provided
-      const parsedTags = tags ? (Array.isArray(tags) ? tags : tags.split(',')) : [];
+      let parsedTags = [];
+      if (tags) {
+        parsedTags = Array.isArray(tags) ? tags : tags.split(',');
+      }
 
       const options = {
         page: parseInt(page),
@@ -93,11 +96,11 @@ class ProductController {
       };
 
       const result = await ProductService.getProducts(options);
-      
+
       res.status(200).json({
         success: true,
         data: {
-          products: result.products.map(p => p.toJSON()),
+          products: result.products.map((p) => p.toJSON()),
           pagination: result.pagination
         }
       });
@@ -109,7 +112,7 @@ class ProductController {
   static async searchProducts(req, res, next) {
     try {
       const { q: searchTerm, ...options } = req.query;
-      
+
       if (!searchTerm) {
         return res.status(400).json({
           success: false,
@@ -126,11 +129,11 @@ class ProductController {
         sortBy: options.sortBy || 'created_at',
         sortOrder: (options.sortOrder || 'DESC').toUpperCase()
       });
-      
+
       res.status(200).json({
         success: true,
         data: {
-          products: result.products.map(p => p.toJSON()),
+          products: result.products.map((p) => p.toJSON()),
           pagination: result.pagination,
           searchTerm
         }
@@ -144,17 +147,17 @@ class ProductController {
     try {
       const { category } = req.params;
       const { page = 1, limit = 20, ...options } = req.query;
-      
+
       const result = await ProductService.getProductsByCategory(category, {
         page: parseInt(page),
         limit: parseInt(limit),
         ...options
       });
-      
+
       res.status(200).json({
         success: true,
         data: {
-          products: result.products.map(p => p.toJSON()),
+          products: result.products.map((p) => p.toJSON()),
           pagination: result.pagination,
           category
         }
@@ -167,14 +170,12 @@ class ProductController {
   static async getFeaturedProducts(req, res, next) {
     try {
       const { limit = 10 } = req.query;
-      
+
       const products = await ProductService.getFeaturedProducts(parseInt(limit));
-      
+
       res.status(200).json({
         success: true,
-        data: {
-          products: products.map(p => p.toJSON())
-        }
+        data: { products: products.map((p) => p.toJSON()) }
       });
     } catch (error) {
       next(error);
@@ -184,7 +185,7 @@ class ProductController {
   static async getCategories(req, res, next) {
     try {
       const categories = await ProductService.getCategories();
-      
+
       res.status(200).json({
         success: true,
         data: { categories }
@@ -197,7 +198,7 @@ class ProductController {
   static async getTags(req, res, next) {
     try {
       const tags = await ProductService.getTags();
-      
+
       res.status(200).json({
         success: true,
         data: { tags }
@@ -211,9 +212,9 @@ class ProductController {
     try {
       const { id } = req.params;
       const { quantity = 1 } = req.query;
-      
+
       const availability = await ProductService.checkAvailability(id, parseInt(quantity));
-      
+
       res.status(200).json({
         success: true,
         data: { availability }
@@ -227,17 +228,17 @@ class ProductController {
   static async getMyProducts(req, res, next) {
     try {
       const { page = 1, limit = 20, status } = req.query;
-      
+
       const result = await ProductService.getVendorProducts(req.userId, {
         page: parseInt(page),
         limit: parseInt(limit),
         status
       });
-      
+
       res.status(200).json({
         success: true,
         data: {
-          products: result.products.map(p => p.toJSON()),
+          products: result.products.map((p) => p.toJSON()),
           pagination: result.pagination
         }
       });
@@ -249,7 +250,7 @@ class ProductController {
   static async getMyProductStats(req, res, next) {
     try {
       const stats = await ProductService.getProductStats(req.userId);
-      
+
       res.status(200).json({
         success: true,
         data: { stats }

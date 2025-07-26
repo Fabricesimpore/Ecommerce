@@ -14,7 +14,7 @@ class EventLogger {
   async log(options) {
     try {
       const config = { ...this.defaultOptions, ...options };
-      
+
       const {
         eventType,
         eventCategory,
@@ -60,7 +60,7 @@ class EventLogger {
       ]);
 
       const eventId = result.rows[0].log_event;
-      
+
       // Console log for development
       if (process.env.NODE_ENV === 'development') {
         console.log(`[EVENT] ${eventType} | ${eventCategory} | ${success ? 'SUCCESS' : 'FAILED'} | ID: ${eventId}`);
@@ -299,7 +299,7 @@ class EventLogger {
 
       return {
         success: true,
-        events: rows.map(row => ({
+        events: rows.map((row) => ({
           id: row.id,
           eventType: row.event_type,
           eventCategory: row.event_category,
@@ -394,7 +394,7 @@ class EventLogger {
 
       return {
         success: true,
-        events: rows.map(row => ({
+        events: rows.map((row) => ({
           id: row.id,
           eventType: row.event_type,
           eventCategory: row.event_category,
@@ -446,15 +446,15 @@ class EventLogger {
       return {
         success: true,
         period: `${days} days`,
-        statistics: rows.map(row => ({
+        statistics: rows.map((row) => ({
           category: row.event_category,
           type: row.event_type,
           totalEvents: parseInt(row.total_events),
           successfulEvents: parseInt(row.successful_events),
           failedEvents: parseInt(row.failed_events),
           uniqueActors: parseInt(row.unique_actors),
-          successRate: row.total_events > 0 
-            ? (row.successful_events / row.total_events * 100).toFixed(2)
+          successRate: row.total_events > 0
+            ? ((row.successful_events / row.total_events) * 100).toFixed(2)
             : 0,
           avgDuration: row.avg_duration_ms ? parseFloat(row.avg_duration_ms).toFixed(2) : null
         }))
