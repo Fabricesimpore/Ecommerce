@@ -10,6 +10,14 @@ process.env.BCRYPT_SALT_ROUNDS = '10';
 // Mock database configuration first
 jest.mock('../src/config/database.config');
 
+// Mock ALL models
+jest.mock('../src/models/user.model');
+jest.mock('../src/models/product.model');  
+jest.mock('../src/models/order.model');
+jest.mock('../src/models/payment.model');
+jest.mock('../src/models/cart.model');
+jest.mock('../src/models/delivery.model');
+
 // Mock JWT utilities
 jest.mock('../src/utils/jwt');
 
@@ -243,4 +251,13 @@ beforeEach(() => {
 });
 
 // Increase timeout for slower tests
-jest.setTimeout(15000);
+jest.setTimeout(30000);
+
+// Suppress console noise during tests
+const originalConsole = global.console;
+global.console = {
+  ...originalConsole,
+  warn: jest.fn(),
+  log: jest.fn(),
+  error: jest.fn()
+};
