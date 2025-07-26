@@ -15,6 +15,7 @@ const orderRoutes = require('./src/routes/order.routes');
 const deliveryRoutes = require('./src/routes/delivery.routes');
 const paymentRoutes = require('./src/routes/payment.routes');
 const analyticsRoutes = require('./src/routes/analytics.routes');
+const jobQueueRoutes = require('./src/routes/job-queue.routes');
 
 // Import middleware
 // const errorMiddleware = require('./src/middlewares/error.middleware');
@@ -69,7 +70,8 @@ app.get('/api', (req, res) => {
       orders: '/api/orders',
       delivery: '/api/delivery',
       payments: '/api/payments',
-      analytics: '/api/analytics'
+      analytics: '/api/analytics',
+      jobs: '/api/jobs'
     }
   });
 });
@@ -83,6 +85,7 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/delivery', deliveryRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/analytics', analyticsRoutes);
+app.use('/api/jobs', jobQueueRoutes);
 
 // 404 handler
 app.use((req, res) => {
