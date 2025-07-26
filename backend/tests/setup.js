@@ -13,6 +13,23 @@ jest.mock('../src/config/database.config');
 // Mock JWT utilities
 jest.mock('../src/utils/jwt');
 
+// Mock jsonwebtoken package directly
+jest.mock('jsonwebtoken', () => ({
+  sign: jest.fn().mockImplementation((payload) => `mock-token-${payload.role || 'user'}`),
+  verify: jest.fn().mockImplementation((token) => {
+    if (token.includes('buyer')) {
+      return { userId: '123e4567-e89b-12d3-a456-426614174000', role: 'buyer', email: 'buyer@test.com' };
+    }
+    if (token.includes('vendor')) {
+      return { userId: '123e4567-e89b-12d3-a456-426614174001', role: 'vendor', email: 'vendor@test.com' };
+    }
+    if (token.includes('admin')) {
+      return { userId: '123e4567-e89b-12d3-a456-426614174002', role: 'admin', email: 'admin@test.com' };
+    }
+    return { userId: 'user-123', role: 'buyer', email: 'test@example.com' };
+  })
+}));
+
 // Mock all services
 jest.mock('../src/services/product.service');
 jest.mock('../src/services/order.service');
@@ -21,10 +38,13 @@ jest.mock('../src/services/payment.service');
 
 // Mock bcrypt for consistent password hashing
 jest.mock('bcrypt', () => ({
-  compare: jest.fn(),
-  hash: jest.fn(),
+  compare: jest.fn().mockImplementation((password, hash) => {
+    // Always return true for 'password123', false for others
+    return Promise.resolve(password === 'password123');
+  }),
+  hash: jest.fn().mockResolvedValue('$2b$10$mockHashedPassword'),
   hashSync: jest.fn(() => '$2b$10$mockHashedPassword'),
-  compareSync: jest.fn(() => true)
+  compareSync: jest.fn((password) => password === 'password123')
 }));
 
 // Global mock setup with comprehensive query handling
