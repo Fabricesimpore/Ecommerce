@@ -36,13 +36,21 @@ class MockJobQueueService {
     try {
       MockJobQueueService.isRunning = true;
 
-      // Mock scheduling 8 jobs as expected by tests
-      const mockCron = require('node-cron');
-      if (mockCron && mockCron.schedule) {
-        for (let i = 0; i < 8; i++) {
-          mockCron.schedule('* * * * *', () => {});
-        }
-      }
+      // Schedule the 8 recurring jobs expected by tests
+      const jobs = [
+        { name: 'daily-analytics', cron: '0 2 * * *', func: MockJobQueueService.runAnalyticsCalculation },
+        { name: 'payment-cleanup', cron: '0 3 * * *', func: MockJobQueueService.runPaymentCleanup },
+        { name: 'event-cleanup', cron: '0 4 * * *', func: MockJobQueueService.runEventCleanup },
+        { name: 'fraud-model-update', cron: '0 5 * * *', func: MockJobQueueService.runFraudModelUpdate },
+        { name: 'health-check', cron: '*/15 * * * *', func: MockJobQueueService.runHealthCheck },
+        { name: 'db-maintenance', cron: '0 1 * * 0', func: MockJobQueueService.runDatabaseMaintenance },
+        { name: 'vendor-reports', cron: '0 8 * * 1', func: MockJobQueueService.runVendorReports },
+        { name: 'email-digest', cron: '0 9 * * *', func: MockJobQueueService.runEmailDigest }
+      ];
+
+      jobs.forEach((job) => {
+        MockJobQueueService.scheduleJob(job.name, job.cron, job.func, `Scheduled ${job.name}`);
+      });
 
       if (MockJobQueueService.eventLogger && MockJobQueueService.eventLogger.logSystemEvent) {
         await MockJobQueueService.eventLogger.logSystemEvent('job_queue_initialized', { scheduled_jobs: 8 });
@@ -63,7 +71,7 @@ class MockJobQueueService {
     }
 
     if (MockJobQueueService.jobs.has(name)) {
-      console.log(`⏭️ Job ${name} already scheduled, skipping`);
+      console.warn(`Job ${name} already exists, skipping...`);
       return;
     }
 
@@ -133,7 +141,7 @@ class MockJobQueueService {
         job.lastRun = new Date();
         job.runCount++;
         job.lastStatus = 'completed';
-        job.lastDuration = `${duration}ms`;
+        job.lastDuration = duration;
       }
 
       // Log successful execution
@@ -165,7 +173,7 @@ class MockJobQueueService {
       const job = MockJobQueueService.jobs.get(jobName);
       if (job) {
         job.lastStatus = 'failed';
-        job.lastDuration = '0ms';
+        job.lastDuration = 0;
       }
 
       if (MockJobQueueService.eventLogger) {
@@ -357,7 +365,14 @@ class MockJobQueueService {
     if (!MockJobQueueService.jobHistory) {
       MockJobQueueService.jobHistory = [];
     }
-    MockJobQueueService.jobHistory.unshift(entry);
+
+    // Convert numeric duration to string format for consistency
+    const formattedEntry = {
+      ...entry,
+      duration: typeof entry.duration === 'number' ? `${entry.duration}ms` : entry.duration
+    };
+
+    MockJobQueueService.jobHistory.unshift(formattedEntry);
     if (MockJobQueueService.jobHistory.length > MockJobQueueService.maxHistorySize) {
       MockJobQueueService.jobHistory = MockJobQueueService.jobHistory.slice(0, MockJobQueueService.maxHistorySize);
     }
