@@ -49,9 +49,9 @@ const authValidation = {
       return value;
     },
     role: (value) => {
-      const allowedRoles = ['buyer', 'vendor', 'driver'];
+      const allowedRoles = ['buyer', 'vendor', 'driver', 'admin'];
       if (!allowedRoles.includes(value)) {
-        throw new Error('Invalid role. Must be: buyer, vendor, or driver');
+        throw new Error('Invalid role. Must be: buyer, vendor, driver, or admin');
       }
       return value;
     }

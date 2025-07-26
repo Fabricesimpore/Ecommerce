@@ -1,0 +1,16 @@
+{
+  "name": "ecommerce-burkina",
+  "version": "1.0.0",
+  "description": "E-commerce platform for Burkina Faso", 
+  "main": "index.js",
+  "scripts": {
+    "test": "node test-script.js",
+    "test:server": "node backend/test-server.js"
+  },
+  "keywords": ["ecommerce", "burkina-faso", "nodejs"],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "axios": "^1.6.0"
+  }
+}

@@ -6,7 +6,7 @@ class AuthService {
     const { email, phone, password, role = 'buyer', ...profile } = userData;
 
     // Validate role
-    const allowedRoles = ['buyer', 'vendor', 'driver'];
+    const allowedRoles = ['buyer', 'vendor', 'driver', 'admin'];
     if (!allowedRoles.includes(role)) {
       throw new Error('Invalid role');
     }

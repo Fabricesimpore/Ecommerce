@@ -1,0 +1,44 @@
+{
+  "timestamp": "2025-07-26T03:27:10.446Z",
+  "summary": {
+    "total_tests": 0,
+    "passed": 0,
+    "failed": 0,
+    "warnings": 0
+  },
+  "test_data": {
+    "users_created": 0,
+    "products_created": 0,
+    "orders_created": 0,
+    "payments_processed": 0,
+    "deliveries_tracked": 0
+  },
+  "endpoints_tested": [
+    "GET /health",
+    "POST /auth/register",
+    "POST /auth/login",
+    "GET /auth/profile",
+    "POST /products",
+    "GET /products",
+    "POST /cart/add",
+    "GET /cart",
+    "POST /orders/checkout",
+    "POST /payments/initiate",
+    "GET /payments/*/status",
+    "POST /payments/webhook",
+    "GET /delivery/available",
+    "POST /delivery/*/accept",
+    "PUT /delivery/*/status",
+    "GET /vendors/dashboard",
+    "GET /analytics/dashboard",
+    "GET /jobs/status",
+    "POST /jobs/*/trigger",
+    "GET /jobs/history",
+    "GET /analytics/events"
+  ],
+  "security_tests": [
+    "Invalid JWT rejection",
+    "Role-based access control",
+    "Unauthorized route access"
+  ]
+}
