@@ -38,6 +38,14 @@ jest.mock('jsonwebtoken', () => ({
   })
 }));
 
+// Mock all models
+jest.mock('../src/models/user.model');
+jest.mock('../src/models/product.model');
+jest.mock('../src/models/order.model');
+jest.mock('../src/models/cart.model');
+jest.mock('../src/models/delivery.model');
+jest.mock('../src/models/payment.model');
+
 // Mock all services
 jest.mock('../src/services/auth.service');
 jest.mock('../src/services/product.service');
@@ -213,17 +221,54 @@ databaseConfig.pool = mockDb.pool;
 
 // Mock JWT module
 jest.mock('jsonwebtoken', () => ({
-  sign: jest.fn(() => 'mocked-jwt-token'),
-  verify: jest.fn(() => ({
-    userId: '123e4567-e89b-12d3-a456-426614174000',
-    email: 'test@example.com',
-    role: 'buyer'
-  })),
-  decode: jest.fn(() => ({
-    userId: '123e4567-e89b-12d3-a456-426614174000',
-    email: 'test@example.com',
-    role: 'buyer'
-  }))
+  sign: jest.fn().mockImplementation((payload) => {
+    if (payload.role === 'vendor') {
+      return `mock-token-vendor-${payload.userId}`;
+    } else if (payload.role === 'admin') {
+      return `mock-token-admin-${payload.userId}`;
+    }
+    return `mock-token-buyer-${payload.userId}`;
+  }),
+  verify: jest.fn().mockImplementation((token) => {
+    if (token.includes('vendor')) {
+      return {
+        userId: '123e4567-e89b-12d3-a456-426614174000',
+        email: 'vendor@example.com',
+        role: 'vendor'
+      };
+    } else if (token.includes('admin')) {
+      return {
+        userId: '123e4567-e89b-12d3-a456-426614174002',
+        email: 'admin@example.com',
+        role: 'admin'
+      };
+    }
+    return {
+      userId: '123e4567-e89b-12d3-a456-426614174001',
+      email: 'buyer@example.com',
+      role: 'buyer'
+    };
+  }),
+  decode: jest.fn().mockImplementation((token) => {
+    if (token.includes('vendor')) {
+      return {
+        userId: '123e4567-e89b-12d3-a456-426614174000',
+        email: 'vendor@example.com',
+        role: 'vendor'
+      };
+    } else if (token.includes('admin')) {
+      return {
+        userId: '123e4567-e89b-12d3-a456-426614174002',
+        email: 'admin@example.com',
+        role: 'admin'
+      };
+    }
+    return {
+      userId: '123e4567-e89b-12d3-a456-426614174001',
+      email: 'buyer@example.com',
+      role: 'buyer'
+    };
+  })
 }));
 
 // Add any global test setup here

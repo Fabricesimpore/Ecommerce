@@ -30,13 +30,36 @@ class MockUser {
   }
 
   static async findById(id) {
-    // Return a mock user for testing
+    // Return appropriate mock user based on ID
+    if (id === '123e4567-e89b-12d3-a456-426614174000') {
+      return new MockUser({
+        id,
+        email: 'vendor@example.com',
+        role: 'vendor',
+        firstName: 'Test',
+        lastName: 'Vendor',
+        businessName: 'Test Store',
+        status: 'active'
+      });
+    }
+    if (id === '123e4567-e89b-12d3-a456-426614174002') {
+      return new MockUser({
+        id,
+        email: 'admin@example.com',
+        role: 'admin',
+        firstName: 'Test',
+        lastName: 'Admin',
+        status: 'active'
+      });
+    }
+    // Default to buyer
     return new MockUser({
       id,
-      email: 'test@example.com',
+      email: 'buyer@example.com',
       role: 'buyer',
       firstName: 'Test',
-      lastName: 'User'
+      lastName: 'Buyer',
+      status: 'active'
     });
   }
 
@@ -103,6 +126,10 @@ class MockUser {
 
   async save() {
     return this;
+  }
+
+  canManageProducts() {
+    return this.role === 'vendor' && this.status === 'active';
   }
 
   toJSON() {
