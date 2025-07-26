@@ -98,7 +98,9 @@ app.use((req, res) => {
 
 // Error handling middleware (should be last)
 app.use((err, req, res, next) => {
-  console.error(err.stack);
+  if (process.env.NODE_ENV !== 'test') {
+    console.error(err.stack);
+  }
   
   const status = err.status || 500;
   const message = err.message || 'Internal Server Error';
