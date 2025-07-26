@@ -139,7 +139,7 @@ class MockJobQueueService {
       const job = MockJobQueueService.jobs.get(jobName);
       if (job) {
         job.lastRun = new Date();
-        job.runCount++;
+        job.runCount = (job.runCount || 0) + 1;
         job.lastStatus = 'completed';
         job.lastDuration = duration;
       }
@@ -175,6 +175,7 @@ class MockJobQueueService {
       if (job) {
         job.lastStatus = 'failed';
         job.lastDuration = 0;
+        job.runCount = (job.runCount || 0) + 1; // Ensure increment on failure
       }
 
       if (MockJobQueueService.eventLogger) {
@@ -190,9 +191,9 @@ class MockJobQueueService {
   static async runAnalyticsCalculation() {
     // eslint-disable-next-line import/no-unresolved
     const mockAnalyticsService = require('./analytics.service');
-    await mockAnalyticsService.calculateDailyStats();
+    const result = await mockAnalyticsService.calculateDailyStats();
     console.log('Analytics calculation placeholder - would calculate daily metrics');
-    return 'Calculated 5 statistics';
+    return result || 'Calculated 5 statistics';
   }
 
   static async runPaymentCleanup() {
@@ -217,18 +218,29 @@ class MockJobQueueService {
 
   static async runHealthCheck() {
     if (MockJobQueueService.mockDb) {
-      await MockJobQueueService.mockDb.query('SELECT 1');
-      const errorQuery = 'SELECT COUNT(*) as error_count FROM events WHERE created_at > NOW() - INTERVAL \'15 minutes\' AND event_type = \'error\''; // eslint-disable-line max-len
-      await MockJobQueueService.mockDb.query(errorQuery);
+      try {
+        await MockJobQueueService.mockDb.query('SELECT 1');
+        const errorQuery = 'SELECT COUNT(*) as error_count FROM events WHERE created_at > NOW() - INTERVAL \'15 minutes\' AND event_type = \'error\''; // eslint-disable-line max-len
+        const errorResult = await MockJobQueueService.mockDb.query(errorQuery);
 
-      const errorCount = MockJobQueueService.mockDb.query.mock.calls.length > 1 ? 5 : 15;
+        // Extract error count from mock result or default
+        let errorCount = 5; // default
+        if (errorResult && errorResult.rows && errorResult.rows[0]) {
+          errorCount = parseInt(errorResult.rows[0].error_count, 10) || 5;
+        }
 
-      if (errorCount > 10 && MockJobQueueService.eventLogger) {
-        const warningData = { error_count: errorCount, threshold: 10 };
-        await MockJobQueueService.eventLogger.logSystemEvent('health_check_warning', warningData, 'warn');
+        if (errorCount > 10 && MockJobQueueService.eventLogger) {
+          const warningData = { error_count: errorCount, threshold: 10 };
+          await MockJobQueueService.eventLogger.logSystemEvent('health_check_warning', warningData, 'warn');
+        }
+
+        return `Health check: DB healthy, ${errorCount} errors in 15min`;
+      } catch (error) {
+        if (MockJobQueueService.eventLogger) {
+          await MockJobQueueService.eventLogger.logError('health_check_failed', error);
+        }
+        return 'Health check failed - database connection error';
       }
-
-      return `Health check: DB healthy, ${errorCount} errors in 15min`;
     }
 
     if (MockJobQueueService.eventLogger) {
@@ -370,6 +382,16 @@ class MockJobQueueService {
 
   static restartAll() {
     console.log('🔄 Restarting all scheduled jobs...');
+
+    // First stop all jobs
+    // eslint-disable-next-line no-unused-vars
+    for (const [name, job] of MockJobQueueService.jobs.entries()) {
+      if (job.task) {
+        job.task.stop();
+      }
+    }
+
+    // Then start all jobs
     const result = MockJobQueueService.restartAllJobs();
     setTimeout(() => {
       console.log('✅ All jobs restarted');
@@ -389,9 +411,10 @@ class MockJobQueueService {
       duration: typeof entry.duration === 'number' ? `${entry.duration}ms` : entry.duration
     };
 
-    MockJobQueueService.jobHistory.unshift(formattedEntry);
+    MockJobQueueService.jobHistory.push(formattedEntry);
     if (MockJobQueueService.jobHistory.length > MockJobQueueService.maxHistorySize) {
-      MockJobQueueService.jobHistory = MockJobQueueService.jobHistory.slice(0, MockJobQueueService.maxHistorySize);
+      // Remove oldest entries (from the beginning) to maintain size limit
+      MockJobQueueService.jobHistory.shift();
     }
   }
 
@@ -399,7 +422,8 @@ class MockJobQueueService {
     if (!MockJobQueueService.jobHistory) {
       return [];
     }
-    return MockJobQueueService.jobHistory.slice(0, limit);
+    // Return newest first by reversing the chronological order
+    return MockJobQueueService.jobHistory.slice().reverse().slice(0, limit);
   }
 
   static getHistory(limit = 50) {
@@ -455,7 +479,8 @@ class MockJobQueueService {
   static queueJob(jobName, jobFunction, delay = 0) {
     // For immediate execution (delay = 0), run now
     if (delay === 0) {
-      const oneTimeJobName = `one-time-${jobName}-immediate`;
+      console.log(`⏰ Queued one-time job: ${jobName}`);
+      const oneTimeJobName = `one-time-${jobName}`;
       const description = `One-time job: ${jobName}`;
       return MockJobQueueService.executeJob(oneTimeJobName, jobFunction, description);
     }
