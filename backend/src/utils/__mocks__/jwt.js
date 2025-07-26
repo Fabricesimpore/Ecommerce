@@ -73,6 +73,19 @@ const mockJwt = {
       };
     }
     
+    // Handle real JWT tokens by decoding them (mocking successful verification)
+    if (token.includes('.')) {
+      try {
+        const jwt = require('jsonwebtoken');
+        const decoded = jwt.decode(token);
+        if (decoded && decoded.userId) {
+          return decoded;
+        }
+      } catch (e) {
+        // If decode fails, fall through to pattern matching
+      }
+    }
+    
     // Use same logic as verifyAccessToken for other tokens
     if (token.includes('buyer')) {
       return {
@@ -95,6 +108,8 @@ const mockJwt = {
         role: 'admin'
       };
     }
+    
+    // Default fallback
     return {
       userId: 'user-123',
       email: 'test@example.com',
