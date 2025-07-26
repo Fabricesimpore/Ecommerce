@@ -4,14 +4,16 @@ module.exports = {
   collectCoverageFrom: [
     'src/**/*.js',
     '!src/**/*.test.js',
-    '!src/config/*.js'
+    '!src/config/*.js',
+    '!src/**/__mocks__/**'
   ],
   testMatch: [
     '**/tests/**/*.test.js',
     '**/tests/**/*.spec.js'
   ],
   testPathIgnorePatterns: [
-    '/node_modules/'
+    '/node_modules/',
+    '/coverage/'
   ],
   coverageThreshold: {
     global: {
@@ -25,5 +27,8 @@ module.exports = {
   testTimeout: 30000,
   forceExit: true,
   detectOpenHandles: true,
-  verbose: true
+  verbose: true,
+  bail: false, // Continue running tests even if some fail
+  clearMocks: true,
+  resetMocks: true
 };

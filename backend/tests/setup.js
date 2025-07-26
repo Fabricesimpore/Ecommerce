@@ -1,16 +1,105 @@
 // Test setup file
 process.env.NODE_ENV = 'test';
-process.env.JWT_SECRET = 'test-secret';
+process.env.JWT_SECRET = 'test-secret-key-for-testing-purposes-only';
+process.env.JWT_REFRESH_SECRET = 'test-refresh-secret-key-for-testing-purposes-only';
 process.env.JWT_EXPIRE = '7d';
+process.env.JWT_REFRESH_EXPIRE = '30d';
 process.env.PAYMENT_MOCK_MODE = 'true';
+process.env.BCRYPT_SALT_ROUNDS = '10';
 
-// Mock database configuration
+// Mock database configuration first
 jest.mock('../src/config/database.config');
 
-// Global mock setup
+// Mock JWT utilities
+jest.mock('../src/utils/jwt');
+
+// Mock all services
+jest.mock('../src/services/product.service');
+jest.mock('../src/services/order.service');
+jest.mock('../src/services/delivery.service');
+jest.mock('../src/services/payment.service');
+
+// Mock bcrypt for consistent password hashing
+jest.mock('bcrypt', () => ({
+  compare: jest.fn(),
+  hash: jest.fn(),
+  hashSync: jest.fn(() => '$2b$10$mockHashedPassword'),
+  compareSync: jest.fn(() => true)
+}));
+
+// Global mock setup with comprehensive query handling
 const mockDb = {
-  query: jest.fn(),
-  getClient: jest.fn(),
+  query: jest.fn().mockImplementation((text, params) => {
+    // Handle different query types
+    if (text.includes('SELECT * FROM users WHERE email')) {
+      return Promise.resolve({
+        rows: [{
+          id: '123e4567-e89b-12d3-a456-426614174000',
+          email: params?.[0] || 'test@example.com',
+          role: 'buyer',
+          status: 'active',
+          password_hash: '$2b$10$mockHashedPassword',
+          first_name: 'Test',
+          last_name: 'User',
+          phone: '+22670000001',
+          created_at: new Date(),
+          updated_at: new Date()
+        }]
+      });
+    }
+    if (text.includes('SELECT * FROM users WHERE phone')) {
+      return Promise.resolve({
+        rows: [{
+          id: '123e4567-e89b-12d3-a456-426614174000',
+          phone: params?.[0] || '+22670000001',
+          role: 'buyer',
+          status: 'active',
+          password_hash: '$2b$10$mockHashedPassword',
+          email: 'test@example.com',
+          first_name: 'Test',
+          last_name: 'User'
+        }]
+      });
+    }
+    if (text.includes('SELECT * FROM users WHERE id')) {
+      return Promise.resolve({
+        rows: [{
+          id: params?.[0] || '123e4567-e89b-12d3-a456-426614174000',
+          email: 'test@example.com',
+          role: 'buyer',
+          status: 'active',
+          first_name: 'Test',
+          last_name: 'User'
+        }]
+      });
+    }
+    if (text.includes('INSERT INTO users')) {
+      return Promise.resolve({
+        rows: [{
+          id: `user-${Date.now()}`,
+          email: 'new@example.com',
+          role: 'buyer',
+          status: 'active',
+          created_at: new Date(),
+          updated_at: new Date()
+        }]
+      });
+    }
+    if (text.includes('UPDATE users')) {
+      return Promise.resolve({
+        rows: [{
+          id: params?.[params.length - 1] || 'user-123',
+          updated_at: new Date()
+        }]
+      });
+    }
+    // Default empty response
+    return Promise.resolve({ rows: [] });
+  }),
+  getClient: jest.fn(() => ({
+    query: jest.fn().mockResolvedValue({ rows: [] }),
+    release: jest.fn()
+  })),
   end: jest.fn(),
   pool: {
     end: jest.fn()
@@ -59,28 +148,64 @@ const mockUsers = {
   }
 };
 
+// Mock JWT tokens
+const mockTokens = {
+  validAccessToken: 'valid-access-token-for-testing',
+  validRefreshToken: 'valid-refresh-token-for-testing',
+  expiredToken: 'expired-token-for-testing',
+  invalidToken: 'invalid-token-for-testing'
+};
+
 // Make mock data available globally
 global.mockDb = mockDb;
 global.mockUsers = mockUsers;
+global.mockTokens = mockTokens;
+
+// Setup database mocks
+const databaseConfig = require('../src/config/database.config');
+databaseConfig.query = mockDb.query;
+databaseConfig.getClient = mockDb.getClient;
+databaseConfig.end = mockDb.end;
+databaseConfig.pool = mockDb.pool;
+
+// Mock JWT module
+jest.mock('jsonwebtoken', () => ({
+  sign: jest.fn(() => 'mocked-jwt-token'),
+  verify: jest.fn(() => ({
+    userId: '123e4567-e89b-12d3-a456-426614174000',
+    email: 'test@example.com',
+    role: 'buyer'
+  })),
+  decode: jest.fn(() => ({
+    userId: '123e4567-e89b-12d3-a456-426614174000',
+    email: 'test@example.com',
+    role: 'buyer'
+  }))
+}));
 
 // Add any global test setup here
 beforeAll(() => {
   // Setup before all tests
-  require('../src/config/database.config').query = mockDb.query;
-  require('../src/config/database.config').getClient = mockDb.getClient;
-  require('../src/config/database.config').end = mockDb.end;
-  require('../src/config/database.config').pool = mockDb.pool;
+  jest.clearAllTimers();
 });
 
 afterAll(() => {
   // Cleanup after all tests
   jest.clearAllMocks();
+  jest.restoreAllMocks();
 });
 
 beforeEach(() => {
   // Reset mocks before each test
   jest.clearAllMocks();
+  
+  // Reset database mock to default successful responses
+  mockDb.query.mockResolvedValue({ rows: [], rowCount: 0 });
+  mockDb.getClient.mockResolvedValue({
+    query: jest.fn().mockResolvedValue({ rows: [], rowCount: 0 }),
+    release: jest.fn()
+  });
 });
 
 // Increase timeout for slower tests
-jest.setTimeout(10000);
+jest.setTimeout(15000);

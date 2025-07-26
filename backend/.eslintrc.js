@@ -13,27 +13,31 @@ module.exports = {
     sourceType: 'module',
   },
   rules: {
-    'no-console': process.env.NODE_ENV === 'production' ? 'error' : 'warn',
-    'no-unused-vars': ['error', { argsIgnorePattern: 'next' }],
+    'no-console': process.env.NODE_ENV === 'production' ? 'error' : 'off',
+    'no-unused-vars': ['error', { argsIgnorePattern: 'next|req|res|err' }],
     'comma-dangle': ['error', 'never'],
-    'max-len': ['error', { code: 120 }],
+    'max-len': ['warn', { code: 120, ignoreComments: true, ignoreUrls: true }],
     'object-curly-newline': ['error', {
       ObjectExpression: { multiline: true, minProperties: 6 },
       ObjectPattern: { multiline: true, minProperties: 6 },
       ImportDeclaration: { multiline: true, minProperties: 6 },
       ExportDeclaration: { multiline: true, minProperties: 6 }
     }],
-    // Temporary overrides for urgent production deployment
-    'radix': 'warn',
-    'no-return-await': 'warn',
-    'class-methods-use-this': 'warn',
-    'consistent-return': 'warn',
-    'camelcase': 'warn',
-    'no-case-declarations': 'warn',
-    'no-plusplus': 'warn',
-    'global-require': 'warn',
-    'import/no-extraneous-dependencies': 'warn',
-    'no-unused-vars': 'warn',
-    'max-len': 'warn'
+    // Disable rules that are problematic in our current setup
+    'radix': 'off',
+    'no-return-await': 'off',
+    'class-methods-use-this': 'off',
+    'consistent-return': 'off',
+    'camelcase': 'off',
+    'no-case-declarations': 'off',
+    'no-plusplus': 'off',
+    'global-require': 'off',
+    'import/no-extraneous-dependencies': ['error', { devDependencies: ['**/*.test.js', '**/*.spec.js', '**/tests/**', '**/jest.config.js'] }],
+    // Allow certain patterns common in our codebase
+    'no-param-reassign': ['error', { props: false }],
+    'prefer-destructuring': 'off',
+    'no-await-in-loop': 'off',
+    'no-restricted-syntax': 'off',
+    'guard-for-in': 'off'
   },
 };

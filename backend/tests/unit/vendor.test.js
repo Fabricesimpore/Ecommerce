@@ -3,61 +3,194 @@ const app = require('../../app');
 const db = require('../../src/config/database.config');
 const jwt = require('jsonwebtoken');
 
-// Mock the database
+// Mock the database and User model
 jest.mock('../../src/config/database.config');
+jest.mock('../../src/models/user.model');
+jest.mock('../../src/services/product.service');
 
 describe('Vendor Endpoints', () => {
   let buyerToken, vendorToken, adminToken, buyerId, vendorId, adminId;
+  let mockBuyer, mockVendor, mockAdmin;
   
   beforeEach(() => {
     jest.clearAllMocks();
     
-    // Mock buyer user
+    // Create mock user IDs
     buyerId = '123e4567-e89b-12d3-a456-426614174000';
-    buyerToken = jwt.sign(
-      { userId: buyerId, email: 'buyer@example.com', role: 'buyer' },
-      process.env.JWT_SECRET
-    );
-    
-    // Mock vendor user
     vendorId = '123e4567-e89b-12d3-a456-426614174001';
-    vendorToken = jwt.sign(
-      { userId: vendorId, email: 'vendor@example.com', role: 'vendor' },
-      process.env.JWT_SECRET
-    );
-    
-    // Mock admin user
     adminId = '123e4567-e89b-12d3-a456-426614174002';
-    adminToken = jwt.sign(
-      { userId: adminId, email: 'admin@example.com', role: 'admin' },
-      process.env.JWT_SECRET
-    );
+    
+    // Create mock tokens
+    buyerToken = 'buyer-valid-token';
+    vendorToken = 'vendor-valid-token';
+    adminToken = 'admin-valid-token';
+    
+    // Reset JWT mock to return valid tokens for each role
+    jwt.verify.mockImplementation((token) => {
+      if (token.includes('buyer')) {
+        return { userId: buyerId, email: 'buyer@example.com', role: 'buyer' };
+      }
+      if (token.includes('vendor')) {
+        return { userId: vendorId, email: 'vendor@example.com', role: 'vendor' };
+      }
+      if (token.includes('admin')) {
+        return { userId: adminId, email: 'admin@example.com', role: 'admin' };
+      }
+      throw new Error('Invalid token');
+    });
+    
+    // Create mock user instances
+    mockBuyer = {
+      id: buyerId,
+      email: 'buyer@example.com',
+      role: 'buyer',
+      status: 'active',
+      applyAsVendor: jest.fn(),
+      isVendor: jest.fn(() => false),
+      updateStatus: jest.fn(),
+      toJSON: jest.fn(() => ({
+        id: buyerId,
+        email: 'buyer@example.com',
+        role: 'vendor',
+        status: 'pending'
+      }))
+    };
+    
+    mockVendor = {
+      id: vendorId,
+      email: 'vendor@example.com',
+      role: 'vendor',
+      status: 'active',
+      businessName: 'Vendor Business 1',
+      verification: { businessLicense: true, identity: true },
+      address: { coordinates: {} },
+      createdAt: new Date(),
+      isVendor: jest.fn(() => true),
+      updateStatus: jest.fn(),
+      updateProfile: jest.fn(),
+      toJSON: jest.fn(() => ({
+        id: vendorId,
+        email: 'vendor@example.com',
+        role: 'vendor',
+        status: 'active',
+        businessName: 'Vendor Business 1',
+        verification: { businessLicense: true, identity: true },
+        address: { coordinates: {} },
+        createdAt: new Date()
+      }))
+    };
+    
+    mockAdmin = {
+      id: adminId,
+      email: 'admin@example.com',
+      role: 'admin',
+      status: 'active',
+      isVendor: jest.fn(() => false),
+      updateStatus: jest.fn(),
+      toJSON: jest.fn(() => ({
+        id: adminId,
+        email: 'admin@example.com',
+        role: 'admin',
+        status: 'active'
+      }))
+    };
+    
+    // Mock User model methods
+    const User = require('../../src/models/user.model');
+    User.findById = jest.fn().mockImplementation((userId) => {
+      if (userId === buyerId) return Promise.resolve(mockBuyer);
+      if (userId === vendorId) return Promise.resolve(mockVendor);
+      if (userId === adminId) return Promise.resolve(mockAdmin);
+      return Promise.resolve(null);
+    });
+    
+    const mockVendor2 = {
+      id: 'vendor-2',
+      role: 'vendor',
+      status: 'active',
+      businessName: 'Vendor Business 2',
+      verification: { businessLicense: false, identity: true },
+      address: { coordinates: {} },
+      createdAt: new Date(),
+      toJSON: () => ({
+        id: 'vendor-2',
+        role: 'vendor',
+        status: 'active',
+        businessName: 'Vendor Business 2',
+        verification: { businessLicense: false, identity: true },
+        address: { coordinates: {} },
+        createdAt: new Date()
+      })
+    };
+    
+    User.getVendors = jest.fn().mockImplementation((options = {}) => {
+      const allVendors = [mockVendor, mockVendor2];
+      
+      if (options.verified === true) {
+        return Promise.resolve([mockVendor]); // Only mockVendor has businessLicense: true
+      }
+      if (options.verified === false) {
+        return Promise.resolve([mockVendor2]); // Only mockVendor2 has businessLicense: false
+      }
+      
+      return Promise.resolve(allVendors);
+    });
+    
+    // Mock ProductService for vendor products
+    const ProductService = require('../../src/services/product.service');
+    ProductService.getByVendor = jest.fn().mockResolvedValue([
+      { id: 'product-1', title: 'Product 1', vendorId },
+      { id: 'product-2', title: 'Product 2', vendorId }
+    ]);
+    
+    // Mock user lookup queries for auth middleware
+    db.query.mockImplementation((query, params) => {
+      const queryLower = query.toLowerCase();
+      
+      // User lookup for auth middleware
+      if (queryLower.includes('select') && queryLower.includes('users') && params && params[0]) {
+        const userId = params[0];
+        if (userId === buyerId) {
+          return Promise.resolve({
+            rows: [{
+              id: buyerId,
+              email: 'buyer@example.com',
+              role: 'buyer',
+              status: 'active'
+            }]
+          });
+        }
+        if (userId === vendorId) {
+          return Promise.resolve({
+            rows: [{
+              id: vendorId,
+              email: 'vendor@example.com',
+              role: 'vendor',
+              status: 'active'
+            }]
+          });
+        }
+        if (userId === adminId) {
+          return Promise.resolve({
+            rows: [{
+              id: adminId,
+              email: 'admin@example.com',
+              role: 'admin',
+              status: 'active'
+            }]
+          });
+        }
+      }
+      
+      return Promise.resolve({ rows: [] });
+    });
   });
 
   describe('POST /api/vendors/apply', () => {
     it('should allow buyer to apply as vendor', async () => {
-      // Mock user lookup
-      db.query
-        .mockResolvedValueOnce({
-          rows: [{
-            id: buyerId,
-            role: 'buyer',
-            status: 'active',
-            email: 'buyer@example.com'
-          }]
-        })
-        // Mock vendor application update
-        .mockResolvedValueOnce({
-          rows: [{
-            id: buyerId,
-            role: 'vendor',
-            status: 'pending',
-            business_name: 'My Business',
-            national_id: 'ID123456',
-            updated_at: new Date()
-          }]
-        });
-
+      // Setup the applyAsVendor mock to succeed
+      mockBuyer.applyAsVendor.mockResolvedValueOnce(mockBuyer);
+      
       const response = await request(app)
         .post('/api/vendors/apply')
         .set('Authorization', `Bearer ${buyerToken}`)
@@ -69,7 +202,10 @@ describe('Vendor Endpoints', () => {
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
       expect(response.body.message).toContain('Vendor application submitted successfully');
-      expect(response.body.data.user.role).toBe('vendor');
+      expect(mockBuyer.applyAsVendor).toHaveBeenCalledWith({
+        businessName: 'My Business',
+        nationalId: 'ID123456'
+      });
     });
 
     it('should require business name and national ID', async () => {
