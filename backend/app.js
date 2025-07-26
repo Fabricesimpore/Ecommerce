@@ -7,7 +7,7 @@ const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 
 // Import routes
-// const authRoutes = require('./src/routes/auth.routes');
+const authRoutes = require('./src/routes/auth.routes');
 // const productRoutes = require('./src/routes/product.routes');
 // const orderRoutes = require('./src/routes/order.routes');
 // const paymentRoutes = require('./src/routes/payment.routes');
@@ -66,8 +66,8 @@ app.get('/api', (req, res) => {
   });
 });
 
-// Routes (to be implemented)
-// app.use('/api/auth', authRoutes);
+// Routes
+app.use('/api/auth', authRoutes);
 // app.use('/api/products', productRoutes);
 // app.use('/api/orders', orderRoutes);
 // app.use('/api/payments', paymentRoutes);
