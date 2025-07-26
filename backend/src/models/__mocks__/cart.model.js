@@ -1,16 +1,18 @@
 // Mock Cart class
 class MockCart {
   constructor(data) {
-    Object.assign(this, data);
     this.id = data.id || `cart-${Date.now()}-${Math.random()}`;
+    this.userId = data.user_id || data.userId;
+    this.createdAt = data.created_at || data.createdAt;
+    this.updatedAt = data.updated_at || data.updatedAt;
     this.items = data.items || [];
     this.totalAmount = data.totalAmount || 0;
   }
 
-  static async findByUser(userId) {
+  static async getByUserId(userId) {
     return new MockCart({
       id: `cart-${userId}`,
-      userId,
+      user_id: userId,
       items: [
         {
           productId: 'product-123',
@@ -23,6 +25,10 @@ class MockCart {
       created_at: new Date(),
       updated_at: new Date()
     });
+  }
+
+  static async findByUser(userId) {
+    return MockCart.getByUserId(userId);
   }
 
   static async create(cartData) {
@@ -52,6 +58,28 @@ class MockCart {
     });
   }
 
+  static async addItem(userId, productId, quantity, options = {}) {
+    const cart = await MockCart.getByUserId(userId);
+    
+    const existingItem = cart.items.find((item) => item.productId === productId);
+
+    if (existingItem) {
+      existingItem.quantity += quantity;
+      existingItem.total = existingItem.quantity * existingItem.price;
+    } else {
+      cart.items.push({
+        productId,
+        quantity,
+        price: options.price || 29.99,
+        total: quantity * (options.price || 29.99)
+      });
+    }
+
+    cart.recalculateTotal();
+    cart.updated_at = new Date();
+    return cart;
+  }
+
   async addItem(productId, quantity, price) {
     const existingItem = this.items.find((item) => item.productId === productId);
 
@@ -72,6 +100,25 @@ class MockCart {
     return this;
   }
 
+  static async updateItem(userId, productId, quantity) {
+    const cart = await MockCart.getByUserId(userId);
+    
+    const item = cart.items.find((cartItem) => cartItem.productId === productId);
+
+    if (item) {
+      if (quantity <= 0) {
+        cart.items = cart.items.filter((cartItem) => cartItem.productId !== productId);
+      } else {
+        item.quantity = quantity;
+        item.total = quantity * item.price;
+      }
+    }
+
+    cart.recalculateTotal();
+    cart.updated_at = new Date();
+    return cart;
+  }
+
   async updateItem(productId, quantity) {
     const item = this.items.find((cartItem) => cartItem.productId === productId);
 
@@ -89,11 +136,27 @@ class MockCart {
     return this;
   }
 
+  static async removeItem(userId, productId) {
+    const cart = await MockCart.getByUserId(userId);
+    cart.items = cart.items.filter((item) => item.productId !== productId);
+    cart.recalculateTotal();
+    cart.updated_at = new Date();
+    return cart;
+  }
+
   async removeItem(productId) {
     this.items = this.items.filter((item) => item.productId !== productId);
     this.recalculateTotal();
     this.updated_at = new Date();
     return this;
+  }
+
+  static async clear(userId) {
+    const cart = await MockCart.getByUserId(userId);
+    cart.items = [];
+    cart.totalAmount = 0;
+    cart.updated_at = new Date();
+    return cart;
   }
 
   async clear() {
@@ -103,8 +166,49 @@ class MockCart {
     return this;
   }
 
+  getTotals() {
+    const subtotal = this.items.reduce((total, item) => total + (item.total || item.quantity * item.price), 0);
+    const tax = subtotal * 0.1; // 10% tax
+    const shipping = subtotal > 50 ? 0 : 5.99;
+    const total = subtotal + tax + shipping;
+    
+    return {
+      subtotal,
+      tax,
+      shipping,
+      total,
+      itemCount: this.getItemCount()
+    };
+  }
+
+  validateForCheckout() {
+    if (!this.items || this.items.length === 0) {
+      return {
+        valid: false,
+        issues: ['Cart is empty']
+      };
+    }
+    
+    const unavailableItems = this.items.filter(item => {
+      // Mock some validation logic
+      return item.quantity > 10; // Mock inventory limit
+    });
+    
+    if (unavailableItems.length > 0) {
+      return {
+        valid: false,
+        issues: ['Some items are unavailable or have insufficient inventory']
+      };
+    }
+    
+    return {
+      valid: true,
+      issues: []
+    };
+  }
+
   recalculateTotal() {
-    this.totalAmount = this.items.reduce((total, item) => total + item.total, 0);
+    this.totalAmount = this.items.reduce((total, item) => total + (item.total || item.quantity * item.price), 0);
   }
 
   getItemCount() {

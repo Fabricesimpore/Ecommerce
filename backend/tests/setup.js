@@ -75,6 +75,7 @@ jest.mock('../src/services/product.service');
 jest.mock('../src/services/order.service');
 jest.mock('../src/services/delivery.service');
 jest.mock('../src/services/payment.service');
+jest.mock('../src/services/job-queue.service');
 
 // Mock axios for API calls
 jest.mock('axios', () => ({

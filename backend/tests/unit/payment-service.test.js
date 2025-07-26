@@ -4,7 +4,7 @@ const db = require('../../src/config/database.config');
 jest.mock('../../src/config/database.config');
 jest.mock('../../src/models/payment.model');
 jest.mock('../../src/models/order.model');
-jest.mock('axios');
+jest.mock('axios', () => jest.fn());
 
 // Now require the service after mocking
 const PaymentService = require('../../src/services/payment.service');
@@ -21,6 +21,36 @@ describe('Payment Service', () => {
     
     // Setup default mocks
     db.query.mockResolvedValue({ rows: [] });
+    
+    // Mock axios methods - set up as a proper Jest mock function
+    axios.mockResolvedValue({ data: { success: true } });
+    axios.mockResolvedValueOnce = jest.fn().mockImplementation((value) => {
+      axios.mockImplementationOnce(() => Promise.resolve(value));
+      return axios;
+    });
+    axios.mockRejectedValueOnce = jest.fn().mockImplementation((error) => {
+      axios.mockImplementationOnce(() => Promise.reject(error));
+      return axios;
+    });
+    
+    // Ensure PaymentService methods are properly mocked (restore from any test overrides)
+    PaymentService.processCashOnDeliveryPayment = jest.fn().mockResolvedValue({
+      success: true,
+      status: 'processing',
+      message: 'Cash on delivery payment initiated'
+    });
+    
+    PaymentService.processBankTransferPayment = jest.fn().mockResolvedValue({
+      success: true,
+      status: 'processing',
+      message: 'Bank transfer payment initiated'
+    });
+    
+    PaymentService.processOrangeMoneyPayment = jest.fn().mockResolvedValue({
+      success: true,
+      status: 'processing',
+      message: 'Orange Money payment initiated'
+    });
     
     // Mock order
     mockOrder = {

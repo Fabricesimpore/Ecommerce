@@ -136,10 +136,8 @@ describe('Fraud Detection Service', () => {
       expect(result.recommendedAction).toBe('allow');
       expect(result.message).toBe('Fraud analysis temporarily unavailable');
       
-      // Get the actual event logger instance that was created
-      const EventLogger = require('../../src/services/event-logger.service');
-      const eventLoggerInstance = new EventLogger();
-      expect(eventLoggerInstance.logError).toHaveBeenCalled();
+      // The global mockEventLogger should have been called
+      expect(mockEventLogger.logError).toHaveBeenCalled();
     });
   });
 

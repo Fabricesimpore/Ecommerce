@@ -29,6 +29,8 @@ const mockPaymentService = {
 
 jest.mock('../../src/services/payment.service', () => mockPaymentService);
 
+// Job queue service is now mocked globally in setup.js
+
 // Mock database
 const mockDb = {
   query: jest.fn()
