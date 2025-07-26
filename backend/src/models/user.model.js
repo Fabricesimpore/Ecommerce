@@ -167,6 +167,102 @@ class User {
     return this;
   }
 
+  async verifyIdentity() {
+    const query = 'UPDATE users SET identity_verified = TRUE WHERE id = $1 RETURNING *';
+    const { rows } = await db.query(query, [this.id]);
+    Object.assign(this, new User(rows[0]));
+    return this;
+  }
+
+  async verifyBusinessLicense() {
+    if (this.role !== 'vendor') {
+      throw new Error('Only vendors can have business license verified');
+    }
+    const query = 'UPDATE users SET business_license_verified = TRUE WHERE id = $1 RETURNING *';
+    const { rows } = await db.query(query, [this.id]);
+    Object.assign(this, new User(rows[0]));
+    return this;
+  }
+
+  isVendor() {
+    return this.role === 'vendor';
+  }
+
+  isVerifiedVendor() {
+    return this.role === 'vendor' && 
+           this.status === 'active' && 
+           this.verification.identity &&
+           this.verification.businessLicense;
+  }
+
+  canManageProducts() {
+    return this.isVendor() && this.status === 'active';
+  }
+
+  async applyAsVendor(vendorData) {
+    if (this.role !== 'buyer') {
+      throw new Error('Only buyers can apply to become vendors');
+    }
+
+    const { businessName, nationalId } = vendorData;
+    
+    if (!businessName || !nationalId) {
+      throw new Error('Business name and national ID are required');
+    }
+
+    const query = `
+      UPDATE users 
+      SET role = 'vendor', 
+          business_name = $1, 
+          national_id = $2,
+          status = 'pending'
+      WHERE id = $3
+      RETURNING *
+    `;
+
+    const { rows } = await db.query(query, [businessName, nationalId, this.id]);
+    Object.assign(this, new User(rows[0]));
+    return this;
+  }
+
+  static async getVendors(options = {}) {
+    const { 
+      status = 'active', 
+      verified = null,
+      limit = 50, 
+      offset = 0 
+    } = options;
+
+    let query = "SELECT * FROM users WHERE role = 'vendor'";
+    const values = [];
+    let paramCount = 0;
+
+    if (status) {
+      paramCount++;
+      query += ` AND status = $${paramCount}`;
+      values.push(status);
+    }
+
+    if (verified === true) {
+      query += ' AND identity_verified = TRUE AND business_license_verified = TRUE';
+    } else if (verified === false) {
+      query += ' AND (identity_verified = FALSE OR business_license_verified = FALSE)';
+    }
+
+    query += ' ORDER BY created_at DESC';
+    
+    paramCount++;
+    query += ` LIMIT $${paramCount}`;
+    values.push(limit);
+    
+    paramCount++;
+    query += ` OFFSET $${paramCount}`;
+    values.push(offset);
+
+    const { rows } = await db.query(query, values);
+    return rows.map(row => new User(row));
+  }
+
   toJSON() {
     const { password, ...userWithoutPassword } = this;
     return userWithoutPassword;

@@ -8,7 +8,8 @@ require('dotenv').config();
 
 // Import routes
 const authRoutes = require('./src/routes/auth.routes');
-// const productRoutes = require('./src/routes/product.routes');
+const productRoutes = require('./src/routes/product.routes');
+const vendorRoutes = require('./src/routes/vendor.routes');
 // const orderRoutes = require('./src/routes/order.routes');
 // const paymentRoutes = require('./src/routes/payment.routes');
 
@@ -59,7 +60,8 @@ app.get('/api', (req, res) => {
     endpoints: {
       health: '/health',
       auth: '/api/auth',
-      products: '/api/products',
+      products: '/api/products', 
+      vendors: '/api/vendors',
       orders: '/api/orders',
       payments: '/api/payments'
     }
@@ -68,7 +70,8 @@ app.get('/api', (req, res) => {
 
 // Routes
 app.use('/api/auth', authRoutes);
-// app.use('/api/products', productRoutes);
+app.use('/api/products', productRoutes);
+app.use('/api/vendors', vendorRoutes);
 // app.use('/api/orders', orderRoutes);
 // app.use('/api/payments', paymentRoutes);
 

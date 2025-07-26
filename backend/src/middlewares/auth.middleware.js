@@ -109,8 +109,53 @@ const optionalAuth = async (req, res, next) => {
   }
 };
 
+const requireVendor = (req, res, next) => {
+  if (!req.user) {
+    return res.status(401).json({
+      success: false,
+      message: 'Authentication required'
+    });
+  }
+
+  if (req.user.role !== 'vendor') {
+    return res.status(403).json({
+      success: false,
+      message: 'Vendor access required'
+    });
+  }
+
+  if (req.user.status !== 'active') {
+    return res.status(403).json({
+      success: false,
+      message: 'Vendor account must be active'
+    });
+  }
+
+  next();
+};
+
+const requireAdmin = (req, res, next) => {
+  if (!req.user) {
+    return res.status(401).json({
+      success: false,
+      message: 'Authentication required'
+    });
+  }
+
+  if (req.user.role !== 'admin') {
+    return res.status(403).json({
+      success: false,
+      message: 'Admin access required'
+    });
+  }
+
+  next();
+};
+
 module.exports = {
   authenticate,
   authorize,
-  optionalAuth
+  optionalAuth,
+  requireVendor,
+  requireAdmin
 };
