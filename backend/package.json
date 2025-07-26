@@ -17,7 +17,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
+  "description": "E-commerce backend API with comprehensive testing",
   "dependencies": {
     "axios": "^1.11.0",
     "bcrypt": "^6.0.0",
