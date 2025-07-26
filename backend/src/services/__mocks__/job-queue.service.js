@@ -179,7 +179,11 @@ class MockJobQueueService {
       }
 
       if (MockJobQueueService.eventLogger) {
-        await MockJobQueueService.eventLogger.logError('job_execution_failed', error, { job_name: jobName });
+        await MockJobQueueService.eventLogger.logError('job_execution_failed', error, {
+          job_name: jobName,
+          description: description || jobName,
+          duration_ms: 0
+        });
       }
 
       console.error(`❌ Job ${jobName} failed:`, error.message);
@@ -189,8 +193,7 @@ class MockJobQueueService {
 
   // Job implementations with mocked database calls
   static async runAnalyticsCalculation() {
-    // eslint-disable-next-line import/no-unresolved
-    const mockAnalyticsService = require('./analytics.service');
+    const mockAnalyticsService = require('../analytics.service');
     const result = await mockAnalyticsService.calculateDailyStats();
     console.log('Analytics calculation placeholder - would calculate daily metrics');
     return result || 'Calculated 5 statistics';
@@ -485,8 +488,15 @@ class MockJobQueueService {
       return MockJobQueueService.executeJob(oneTimeJobName, jobFunction, description);
     }
 
-    // For delayed execution, simulate scheduling
+    // For delayed execution, use setTimeout
     console.log(`⏰ Queued one-time job: ${jobName} (delayed ${delay}ms)`);
+
+    setTimeout(() => {
+      const oneTimeJobName = `one-time-${jobName}`;
+      const description = `One-time job: ${jobName}`;
+      MockJobQueueService.executeJob(oneTimeJobName, jobFunction, description);
+    }, delay);
+
     return Promise.resolve({
       success: true,
       jobName,
