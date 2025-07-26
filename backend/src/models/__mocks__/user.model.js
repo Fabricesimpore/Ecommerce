@@ -17,6 +17,12 @@ class MockUser {
     return password === 'password123';
   }
 
+  async updateLastLogin() {
+    // Mock update last login - just update the timestamp
+    this.lastLogin = new Date();
+    return this;
+  }
+
   static async create(userData) {
     const user = new MockUser(userData);
     return user;
