@@ -89,6 +89,20 @@ class MockAuthService {
     };
   }
 
+  static async refreshTokens(refreshToken) {
+    // Mock token refresh (note: plural method name)
+    let role = 'buyer';
+    if (refreshToken.includes('vendor')) role = 'vendor';
+    if (refreshToken.includes('admin')) role = 'admin';
+
+    return {
+      tokens: {
+        accessToken: `mock-access-token-${role}`,
+        refreshToken: `mock-refresh-token-${role}`
+      }
+    };
+  }
+
   static async logout(refreshToken) {
     return { success: true, message: 'Logout successful' };
   }
