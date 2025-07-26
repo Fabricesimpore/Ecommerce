@@ -24,7 +24,7 @@ class ProductController {
 
       res.status(200).json({
         success: true,
-        data: { product: product.toJSON ? product.toJSON() : product }
+        data: { product: product ? (product.toJSON ? product.toJSON() : product) : null }
       });
     } catch (error) {
       next(error);

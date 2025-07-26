@@ -30,8 +30,18 @@ class MockUser {
   }
 
   static async findById(id) {
-    // Return appropriate mock user based on ID
+    // Return appropriate mock user based on ID - aligned with setup.js
     if (id === '123e4567-e89b-12d3-a456-426614174000') {
+      return new MockUser({
+        id,
+        email: 'test@example.com',
+        role: 'buyer',
+        firstName: 'Test',
+        lastName: 'Buyer',
+        status: 'active'
+      });
+    }
+    if (id === '123e4567-e89b-12d3-a456-426614174001') {
       return new MockUser({
         id,
         email: 'vendor@example.com',

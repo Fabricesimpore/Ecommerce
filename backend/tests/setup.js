@@ -18,25 +18,48 @@ jest.mock('../src/models/payment.model');
 jest.mock('../src/models/cart.model');
 jest.mock('../src/models/delivery.model');
 
-// Mock JWT utilities
-jest.mock('../src/utils/jwt');
-
-// Mock jsonwebtoken package directly
-jest.mock('jsonwebtoken', () => ({
-  sign: jest.fn().mockImplementation((payload) => `mock-token-${payload.role || 'user'}`),
-  verify: jest.fn().mockImplementation((token) => {
-    if (token.includes('buyer')) {
-      return { userId: '123e4567-e89b-12d3-a456-426614174000', role: 'buyer', email: 'buyer@test.com' };
-    }
-    if (token.includes('vendor')) {
-      return { userId: '123e4567-e89b-12d3-a456-426614174001', role: 'vendor', email: 'vendor@test.com' };
-    }
-    if (token.includes('admin')) {
-      return { userId: '123e4567-e89b-12d3-a456-426614174002', role: 'admin', email: 'admin@test.com' };
-    }
-    return { userId: 'user-123', role: 'buyer', email: 'test@example.com' };
-  })
-}));
+// Mock JWT utilities with manual implementation
+jest.mock('../src/utils/jwt', () => {
+  return {
+    verifyToken: jest.fn().mockImplementation((token, isRefreshToken = false) => {
+      console.log('DEBUG: Direct JWT mock called with token:', token?.substring(0, 20) + '...');
+      
+      // Handle mock tokens
+      if (token.includes('vendor')) {
+        console.log('DEBUG: Returning vendor user');
+        return {
+          userId: '123e4567-e89b-12d3-a456-426614174000',
+          email: 'vendor@example.com',
+          role: 'vendor'
+        };
+      } else if (token.includes('buyer')) {
+        console.log('DEBUG: Returning buyer user');
+        return {
+          userId: '123e4567-e89b-12d3-a456-426614174001',
+          email: 'buyer@example.com',
+          role: 'buyer'
+        };
+      } else if (token.includes('admin')) {
+        console.log('DEBUG: Returning admin user');
+        return {
+          userId: '123e4567-e89b-12d3-a456-426614174002',
+          email: 'admin@example.com',
+          role: 'admin'
+        };
+      }
+      
+      console.log('DEBUG: No pattern match, returning default');
+      return {
+        userId: '123e4567-e89b-12d3-a456-426614174000',
+        email: 'test@example.com',
+        role: 'buyer'
+      };
+    }),
+    generateAccessToken: jest.fn(),
+    generateRefreshToken: jest.fn(),
+    decodeToken: jest.fn()
+  };
+});
 
 // Mock all models
 jest.mock('../src/models/user.model');
@@ -45,9 +68,6 @@ jest.mock('../src/models/order.model');
 jest.mock('../src/models/cart.model');
 jest.mock('../src/models/delivery.model');
 jest.mock('../src/models/payment.model');
-
-// Mock utilities
-jest.mock('../src/utils/jwt');
 
 // Mock all services
 jest.mock('../src/services/auth.service');
@@ -222,57 +242,7 @@ databaseConfig.getClient = mockDb.getClient;
 databaseConfig.end = mockDb.end;
 databaseConfig.pool = mockDb.pool;
 
-// Mock JWT module
-jest.mock('jsonwebtoken', () => ({
-  sign: jest.fn().mockImplementation((payload) => {
-    if (payload.role === 'vendor') {
-      return `mock-token-vendor-${payload.userId}`;
-    } else if (payload.role === 'admin') {
-      return `mock-token-admin-${payload.userId}`;
-    }
-    return `mock-token-buyer-${payload.userId}`;
-  }),
-  verify: jest.fn().mockImplementation((token) => {
-    if (token.includes('vendor')) {
-      return {
-        userId: '123e4567-e89b-12d3-a456-426614174000',
-        email: 'vendor@example.com',
-        role: 'vendor'
-      };
-    } else if (token.includes('admin')) {
-      return {
-        userId: '123e4567-e89b-12d3-a456-426614174002',
-        email: 'admin@example.com',
-        role: 'admin'
-      };
-    }
-    return {
-      userId: '123e4567-e89b-12d3-a456-426614174001',
-      email: 'buyer@example.com',
-      role: 'buyer'
-    };
-  }),
-  decode: jest.fn().mockImplementation((token) => {
-    if (token.includes('vendor')) {
-      return {
-        userId: '123e4567-e89b-12d3-a456-426614174000',
-        email: 'vendor@example.com',
-        role: 'vendor'
-      };
-    } else if (token.includes('admin')) {
-      return {
-        userId: '123e4567-e89b-12d3-a456-426614174002',
-        email: 'admin@example.com',
-        role: 'admin'
-      };
-    }
-    return {
-      userId: '123e4567-e89b-12d3-a456-426614174001',
-      email: 'buyer@example.com',
-      role: 'buyer'
-    };
-  })
-}));
+// JWT mock removed - handled by JWT utils mock instead
 
 // Add any global test setup here
 beforeAll(() => {
@@ -301,11 +271,11 @@ beforeEach(() => {
 // Increase timeout for slower tests
 jest.setTimeout(30000);
 
-// Suppress console noise during tests
-const originalConsole = global.console;
-global.console = {
-  ...originalConsole,
-  warn: jest.fn(),
-  log: jest.fn(),
-  error: jest.fn()
-};
+// Suppress console noise during tests (commented out for debugging)
+// const originalConsole = global.console;
+// global.console = {
+//   ...originalConsole,
+//   warn: jest.fn(),
+//   log: jest.fn(),
+//   error: jest.fn()
+// };

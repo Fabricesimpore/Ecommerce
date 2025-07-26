@@ -3,6 +3,17 @@ const app = require('../../app');
 const db = require('../../src/config/database.config');
 const jwt = require('jsonwebtoken');
 
+// Directly mock the JWT utils in this test file
+jest.mock('../../src/utils/jwt', () => ({
+  verifyToken: jest.fn(),
+  generateAccessToken: jest.fn(),
+  generateRefreshToken: jest.fn(),
+  decodeToken: jest.fn()
+}));
+
+// Get the mocked module for setup
+const { verifyToken: mockVerifyToken } = require('../../src/utils/jwt');
+
 // Mock the database
 jest.mock('../../src/config/database.config');
 
@@ -12,19 +23,36 @@ describe('Product Endpoints', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     
-    // Mock vendor user
-    vendorId = '123e4567-e89b-12d3-a456-426614174000';
-    vendorToken = jwt.sign(
-      { userId: vendorId, email: 'vendor@example.com', role: 'vendor' },
-      process.env.JWT_SECRET
-    );
+    // Mock vendor user (aligned with User model mock)
+    vendorId = '123e4567-e89b-12d3-a456-426614174001';
+    vendorToken = 'mock-token-vendor-' + vendorId;
     
     // Mock buyer user  
-    buyerId = '123e4567-e89b-12d3-a456-426614174001';
-    buyerToken = jwt.sign(
-      { userId: buyerId, email: 'buyer@example.com', role: 'buyer' },
-      process.env.JWT_SECRET
-    );
+    buyerId = '123e4567-e89b-12d3-a456-426614174000';
+    buyerToken = 'mock-token-buyer-' + buyerId;
+    
+    // Setup JWT mock implementation
+    mockVerifyToken.mockImplementation((token) => {
+      if (token.includes('vendor')) {
+        return {
+          userId: '123e4567-e89b-12d3-a456-426614174001',
+          email: 'vendor@example.com',
+          role: 'vendor'
+        };
+      } else if (token.includes('buyer')) {
+        return {
+          userId: '123e4567-e89b-12d3-a456-426614174000',
+          email: 'buyer@example.com',
+          role: 'buyer'
+        };
+      }
+      
+      return {
+        userId: '123e4567-e89b-12d3-a456-426614174000',
+        email: 'test@example.com',
+        role: 'buyer'
+      };
+    });
   });
 
   describe('POST /api/products', () => {

@@ -6,6 +6,17 @@ const User = require('../../src/models/user.model');
 // Mock the database
 jest.mock('../../src/config/database.config');
 
+// Mock JWT utilities for auth tests
+jest.mock('../../src/utils/jwt', () => ({
+  verifyToken: jest.fn(),
+  generateAccessToken: jest.fn(),
+  generateRefreshToken: jest.fn(),
+  decodeToken: jest.fn()
+}));
+
+// Get the mocked module for setup
+const { verifyToken: mockVerifyToken } = require('../../src/utils/jwt');
+
 describe('Auth Endpoints', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -237,26 +248,19 @@ describe('Auth Endpoints', () => {
     const validToken = 'Bearer valid-jwt-token';
 
     beforeEach(() => {
-      const jwt = require('jsonwebtoken');
-      
-      // Mock token verification for protected routes
-      jest.spyOn(jwt, 'verify').mockReturnValue({
-        userId: '123e4567-e89b-12d3-a456-426614174000',
-        email: 'test@example.com',
-        role: 'buyer'
+      // Setup JWT mock implementation for auth tests
+      mockVerifyToken.mockImplementation((token) => {
+        if (token === 'valid-jwt-token') {
+          return {
+            userId: '123e4567-e89b-12d3-a456-426614174000',
+            email: 'test@example.com',
+            role: 'buyer'
+          };
+        }
+        throw new Error('Invalid token');
       });
 
-      // Mock user lookup
-      db.query.mockResolvedValue({
-        rows: [{
-          id: '123e4567-e89b-12d3-a456-426614174000',
-          email: 'test@example.com',
-          role: 'buyer',
-          status: 'active',
-          created_at: new Date(),
-          updated_at: new Date()
-        }]
-      });
+      // Mock user lookup - not needed since we use User model mock
     });
 
     describe('GET /api/auth/profile', () => {
