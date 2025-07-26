@@ -149,7 +149,8 @@ class MockJobQueueService {
         await MockJobQueueService.eventLogger.logSystemEvent('job_executed', {
           job_name: jobName,
           duration_ms: duration,
-          status: 'success'
+          description: description || jobName,
+          result
         });
       }
 
@@ -188,14 +189,14 @@ class MockJobQueueService {
   // Job implementations with mocked database calls
   static async runAnalyticsCalculation() {
     // eslint-disable-next-line import/no-unresolved
-    const mockAnalyticsService = require('../../services/__mocks__/analytics.service');
+    const mockAnalyticsService = require('./analytics.service');
     await mockAnalyticsService.calculateDailyStats();
     console.log('Analytics calculation placeholder - would calculate daily metrics');
     return 'Calculated 5 statistics';
   }
 
   static async runPaymentCleanup() {
-    const mockPaymentService = require('./payment.service');
+    const mockPaymentService = require('../payment.service');
     await mockPaymentService.cleanupExpiredPayments();
     console.log('Payment cleanup placeholder - would cleanup expired payment intents');
     return 'Cleaned up 3 expired payments';
@@ -257,17 +258,29 @@ class MockJobQueueService {
   }
 
   static async runVendorReports() {
-    console.log('Vendor reports placeholder - would generate and email vendor reports');
-    return 'Vendor reports sent to 25 vendors';
+    console.log('Vendor reports placeholder - would generate daily reports');
+    return 'Vendor reports generated';
   }
 
   static async runEmailDigest() {
-    console.log('Email digest placeholder - would send daily digest emails');
-    return 'Email digest sent to 150 users';
+    console.log('Email digest placeholder - would send admin digest');
+    return 'Email digest sent';
   }
 
   // Job management methods
   static getJobStatus(jobName) {
+    // If no jobName provided, return all jobs as array
+    if (!jobName) {
+      const allJobs = [];
+      // eslint-disable-next-line no-unused-vars
+      for (const [name, job] of MockJobQueueService.jobs.entries()) {
+        // eslint-disable-next-line no-unused-vars
+        const { jobFunction, task, ...cleanJob } = job;
+        allJobs.push(cleanJob);
+      }
+      return allJobs;
+    }
+
     const job = MockJobQueueService.jobs.get(jobName);
     if (!job) return null;
 
@@ -296,6 +309,7 @@ class MockJobQueueService {
     if (job.task) {
       job.task.stop();
     }
+    console.log(`⏹️ Stopped job: ${jobName}`);
     return { success: true, jobName, status: 'stopped' };
   }
 
@@ -308,6 +322,7 @@ class MockJobQueueService {
     if (job.task) {
       job.task.start();
     }
+    console.log(`▶️ Started job: ${jobName}`);
     return { success: true, jobName, status: 'started' };
   }
 
@@ -316,7 +331,9 @@ class MockJobQueueService {
     if (!job) {
       throw new Error(`Job ${jobName} not found`);
     }
-    return await MockJobQueueService.executeJob(jobName, job.jobFunction, job.description);
+    const manualJobName = `manual-${jobName}`;
+    const manualDescription = `Manual execution of ${job.description}`;
+    return await MockJobQueueService.executeJob(manualJobName, job.jobFunction, manualDescription);
   }
 
   static stopAllJobs() {
@@ -407,7 +424,7 @@ class MockJobQueueService {
       }, 0) / completedEntries.length : 0;
 
     const successRate = totalExecutions > 0
-      ? ((completedJobs / totalExecutions) * 100).toFixed(2) : '0.00';
+      ? ((completedJobs / totalExecutions) * 100).toFixed(2) : 0;
 
     return {
       isRunning: MockJobQueueService.isRunning,
@@ -436,19 +453,19 @@ class MockJobQueueService {
 
   // One-time job queuing
   static queueJob(jobName, jobFunction, delay = 0) {
-    const executeAt = new Date(Date.now() + delay);
-    console.log(`📋 Queued job: ${jobName} to execute at ${executeAt.toISOString()}`);
-
     // For immediate execution (delay = 0), run now
     if (delay === 0) {
-      return MockJobQueueService.executeJob(jobName, jobFunction);
+      const oneTimeJobName = `one-time-${jobName}-immediate`;
+      const description = `One-time job: ${jobName}`;
+      return MockJobQueueService.executeJob(oneTimeJobName, jobFunction, description);
     }
 
     // For delayed execution, simulate scheduling
+    console.log(`⏰ Queued one-time job: ${jobName} (delayed ${delay}ms)`);
     return Promise.resolve({
       success: true,
       jobName,
-      scheduledFor: executeAt
+      delay
     });
   }
 }
