@@ -14,6 +14,7 @@ const cartRoutes = require('./src/routes/cart.routes');
 const orderRoutes = require('./src/routes/order.routes');
 const deliveryRoutes = require('./src/routes/delivery.routes');
 const paymentRoutes = require('./src/routes/payment.routes');
+const analyticsRoutes = require('./src/routes/analytics.routes');
 
 // Import middleware
 // const errorMiddleware = require('./src/middlewares/error.middleware');
@@ -67,7 +68,8 @@ app.get('/api', (req, res) => {
       cart: '/api/cart',
       orders: '/api/orders',
       delivery: '/api/delivery',
-      payments: '/api/payments'
+      payments: '/api/payments',
+      analytics: '/api/analytics'
     }
   });
 });
@@ -80,6 +82,7 @@ app.use('/api/cart', cartRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/delivery', deliveryRoutes);
 app.use('/api/payments', paymentRoutes);
+app.use('/api/analytics', analyticsRoutes);
 
 // 404 handler
 app.use((req, res) => {
