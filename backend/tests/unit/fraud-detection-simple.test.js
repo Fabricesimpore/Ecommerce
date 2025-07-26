@@ -3,6 +3,17 @@ const db = require('../../src/config/database.config');
 // Mock the database first
 jest.mock('../../src/config/database.config');
 
+// Mock the EventLogger service
+jest.mock('../../src/services/event-logger.service', () => {
+  return jest.fn().mockImplementation(() => ({
+    log: jest.fn(() => Promise.resolve(true)),
+    logSystemEvent: jest.fn(() => Promise.resolve(true)),
+    logError: jest.fn(() => Promise.resolve(true)),
+    logUserAction: jest.fn(() => Promise.resolve(true)),
+    logAdminAction: jest.fn(() => Promise.resolve(true))
+  }));
+});
+
 describe('Fraud Detection Service - Basic Tests', () => {
   let FraudDetectionService;
 
