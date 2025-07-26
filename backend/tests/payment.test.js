@@ -101,26 +101,13 @@ describe('Payment System', () => {
   });
 
   afterAll(async () => {
-    // Clean up test data
-    await db.query('DELETE FROM payment_audit_log');
-    await db.query('DELETE FROM payments');
-    await db.query('DELETE FROM deliveries');
-    await db.query('DELETE FROM order_items');
-    await db.query('DELETE FROM orders');
-    await db.query('DELETE FROM cart_items');
-    await db.query('DELETE FROM carts');
-    await db.query('DELETE FROM products');
-    await db.query('DELETE FROM users');
-    await db.end();
+    // Clean up test data - using mocks so no real DB cleanup needed
+    jest.clearAllMocks();
   });
 
   beforeEach(async () => {
-    // Clean payments and orders between tests
-    await db.query('DELETE FROM payment_audit_log');
-    await db.query('DELETE FROM payments');
-    await db.query('DELETE FROM deliveries');
-    await db.query('DELETE FROM order_items');
-    await db.query('DELETE FROM orders');
+    // Reset mocks between tests
+    jest.clearAllMocks();
 
     // Create a test order for payment tests
     testOrder = await Order.create({

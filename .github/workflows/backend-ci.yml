@@ -62,10 +62,31 @@ jobs:
         DB_NAME: ecommerce_test
         DB_USER: postgres
         DB_PASSWORD: postgres
+        JWT_SECRET: test_secret_for_ci_tests
+        JWT_REFRESH_SECRET: test_refresh_secret_for_ci_tests
+        JWT_EXPIRE: 7d
+        JWT_REFRESH_EXPIRE: 30d
+        PAYMENT_MOCK_MODE: true
+        BCRYPT_SALT_ROUNDS: 10
+        CI: true
       run: npm test
     
     - name: Generate coverage report
       working-directory: ./backend
+      env:
+        NODE_ENV: test
+        DB_HOST: localhost
+        DB_PORT: 5432
+        DB_NAME: ecommerce_test
+        DB_USER: postgres
+        DB_PASSWORD: postgres
+        JWT_SECRET: test_secret_for_ci_tests
+        JWT_REFRESH_SECRET: test_refresh_secret_for_ci_tests
+        JWT_EXPIRE: 7d
+        JWT_REFRESH_EXPIRE: 30d
+        PAYMENT_MOCK_MODE: true
+        BCRYPT_SALT_ROUNDS: 10
+        CI: true
       run: npm run test:coverage
     
     - name: Upload coverage to Codecov
