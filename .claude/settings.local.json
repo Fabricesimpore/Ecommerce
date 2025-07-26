@@ -29,7 +29,8 @@
       "Bash(timeout 10s npm start)",
       "Bash(gh run list:*)",
       "WebFetch(domain:api.github.com)",
-      "Bash(npm run test:*)"
+      "Bash(npm run test:*)",
+      "Bash(timeout 120s npm run test)"
     ],
     "deny": []
   }
