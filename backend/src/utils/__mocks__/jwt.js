@@ -61,6 +61,45 @@ const mockJwt = {
       email: 'test@example.com',
       role: 'buyer'
     };
+  }),
+
+  verifyToken: jest.fn().mockImplementation((token, isRefreshToken = false) => {
+    // Handle the valid-jwt-token from tests
+    if (token === 'valid-jwt-token') {
+      return {
+        userId: '123e4567-e89b-12d3-a456-426614174000',
+        email: 'test@example.com',
+        role: 'buyer'
+      };
+    }
+    
+    // Use same logic as verifyAccessToken for other tokens
+    if (token.includes('buyer')) {
+      return {
+        userId: '123e4567-e89b-12d3-a456-426614174000',
+        email: 'buyer@test.com',
+        role: 'buyer'
+      };
+    }
+    if (token.includes('vendor')) {
+      return {
+        userId: '123e4567-e89b-12d3-a456-426614174001',
+        email: 'vendor@test.com',
+        role: 'vendor'
+      };
+    }
+    if (token.includes('admin')) {
+      return {
+        userId: '123e4567-e89b-12d3-a456-426614174002',
+        email: 'admin@test.com',
+        role: 'admin'
+      };
+    }
+    return {
+      userId: 'user-123',
+      email: 'test@example.com',
+      role: 'buyer'
+    };
   })
 };
 

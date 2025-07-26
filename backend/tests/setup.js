@@ -46,6 +46,9 @@ jest.mock('../src/models/cart.model');
 jest.mock('../src/models/delivery.model');
 jest.mock('../src/models/payment.model');
 
+// Mock utilities
+jest.mock('../src/utils/jwt');
+
 // Mock all services
 jest.mock('../src/services/auth.service');
 jest.mock('../src/services/product.service');

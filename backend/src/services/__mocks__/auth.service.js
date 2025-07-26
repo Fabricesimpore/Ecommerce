@@ -1,6 +1,20 @@
 // Mock Auth Service
 class MockAuthService {
   static async register(userData) {
+    // Mock duplicate email validation
+    if (userData.email === 'existing@example.com') {
+      const error = new Error('Email already exists');
+      error.code = '23505';
+      error.constraint = 'users_email_key';
+      throw error;
+    }
+
+    // Mock invalid role validation
+    const validRoles = ['buyer', 'vendor', 'admin'];
+    if (userData.role && !validRoles.includes(userData.role)) {
+      throw new Error('Invalid role specified');
+    }
+
     const mockUser = {
       id: `user-${Date.now()}`,
       email: userData.email,
@@ -28,7 +42,16 @@ class MockAuthService {
 
     // Mock successful login for known test users
     let mockUser;
-    if (email === 'buyer@test.com' || phone === '+22670000001') {
+    if (email === 'test@example.com') {
+      mockUser = {
+        id: '123e4567-e89b-12d3-a456-426614174000',
+        email: 'test@example.com',
+        role: 'buyer',
+        firstName: 'Test',
+        lastName: 'User',
+        status: 'active'
+      };
+    } else if (email === 'buyer@test.com' || phone === '+22670000001') {
       mockUser = {
         id: '123e4567-e89b-12d3-a456-426614174000',
         email: 'buyer@test.com',
@@ -59,12 +82,16 @@ class MockAuthService {
         lastName: 'Admin',
         status: 'active'
       };
+    } else if (email === 'suspended@example.com') {
+      // Mock suspended account
+      throw new Error('Account is suspended');
     } else {
       throw new Error('Invalid credentials');
     }
 
-    // Check password
-    if (password !== 'password123') {
+    // Check password - accept common test passwords
+    const validPasswords = ['password123', 'Test123!'];
+    if (!validPasswords.includes(password)) {
       throw new Error('Invalid credentials');
     }
 
@@ -90,6 +117,13 @@ class MockAuthService {
   }
 
   static async refreshTokens(refreshToken) {
+    // Mock expired token
+    if (refreshToken === 'expired-refresh-token') {
+      const error = new Error('Refresh token expired');
+      error.name = 'TokenExpiredError';
+      throw error;
+    }
+
     // Mock token refresh (note: plural method name)
     let role = 'buyer';
     if (refreshToken.includes('vendor')) role = 'vendor';
