@@ -111,8 +111,10 @@ describe('Fraud Detection Service - Basic Tests', () => {
     });
 
     it('should return safe default on database error', async () => {
-      // Mock database error on the updateUserBehavior call
-      db.query.mockRejectedValueOnce(new Error('Database connection failed'));
+      // Mock successful updateUserBehavior call but error on calculate_fraud_score call
+      db.query
+        .mockResolvedValueOnce({ rows: [] }) // updateUserBehavior succeeds
+        .mockRejectedValueOnce(new Error('Database connection failed')); // calculate_fraud_score fails
 
       const result = await FraudDetectionService.analyzeTransaction(mockTransactionData);
 

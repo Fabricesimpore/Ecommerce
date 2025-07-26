@@ -36,17 +36,18 @@ class FraudDetectionService {
         SELECT * FROM calculate_fraud_score($1, $2, $3, $4, $5)
       `, [userId, ipAddress, deviceFingerprint, paymentAmount, JSON.stringify(context)]);
 
-      const fraudAnalysis = result.rows[0];
-      const riskLevel = this.getRiskLevel(fraudAnalysis.risk_score);
+      const fraudAnalysis = result.rows[0] || {};
+      const riskScore = fraudAnalysis?.risk_score ?? 0;
+      const riskLevel = this.getRiskLevel(riskScore);
 
       // Create fraud incident if risk is significant
       let incidentId = null;
-      if (fraudAnalysis.risk_score >= this.riskThresholds.medium) {
+      if (riskScore >= this.riskThresholds.medium) {
         incidentId = await this.createFraudIncident({
           userId,
           incidentType: 'payment_fraud',
-          triggeredRules: fraudAnalysis.triggered_rules,
-          riskScore: fraudAnalysis.risk_score,
+          triggeredRules: fraudAnalysis?.triggered_rules || [],
+          riskScore,
           severity: riskLevel,
           ipAddress,
           userAgent,
@@ -58,7 +59,7 @@ class FraudDetectionService {
             analysis_duration_ms: Date.now() - startTime,
             ...context
           },
-          recommendedAction: fraudAnalysis.recommended_action
+          recommendedAction: fraudAnalysis?.recommended_action || 'allow'
         });
       }
 
@@ -69,10 +70,10 @@ class FraudDetectionService {
         actorId: userId,
         actorType: 'user',
         eventData: {
-          risk_score: fraudAnalysis.risk_score,
+          risk_score: riskScore,
           risk_level: riskLevel,
-          triggered_rules: fraudAnalysis.triggered_rules,
-          recommended_action: fraudAnalysis.recommended_action,
+          triggered_rules: fraudAnalysis?.triggered_rules || [],
+          recommended_action: fraudAnalysis?.recommended_action || 'allow',
           incident_created: incidentId !== null,
           incident_id: incidentId,
           analysis_duration_ms: Date.now() - startTime
@@ -83,16 +84,17 @@ class FraudDetectionService {
         severity: riskLevel === 'critical' ? 'error' : 'info'
       });
 
+      const recommendedAction = fraudAnalysis?.recommended_action || 'allow';
       return {
         success: true,
-        riskScore: fraudAnalysis.risk_score,
+        riskScore,
         riskLevel,
-        triggeredRules: fraudAnalysis.triggered_rules,
-        recommendedAction: fraudAnalysis.recommended_action,
+        triggeredRules: fraudAnalysis?.triggered_rules || [],
+        recommendedAction,
         incidentId,
-        shouldBlock: fraudAnalysis.recommended_action === 'block',
-        shouldReview: fraudAnalysis.recommended_action === 'review',
-        message: this.getActionMessage(fraudAnalysis.recommended_action, fraudAnalysis.risk_score)
+        shouldBlock: recommendedAction === 'block',
+        shouldReview: recommendedAction === 'review',
+        message: this.getActionMessage(recommendedAction, riskScore)
       };
     } catch (error) {
       await this.eventLogger.logError('fraud_analysis_failed', error, {
