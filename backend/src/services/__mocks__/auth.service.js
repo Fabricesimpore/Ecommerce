@@ -25,7 +25,7 @@ class MockAuthService {
 
   static async login(credentials) {
     const { email, phone, password } = credentials;
-    
+
     // Mock successful login for known test users
     let mockUser;
     if (email === 'buyer@test.com' || phone === '+22670000001') {
@@ -122,18 +122,18 @@ class MockAuthService {
     };
   }
 
-  static async changePassword(userId, oldPassword, newPassword) {
+  static async changePassword(userId, oldPassword) {
     if (oldPassword !== 'password123') {
       throw new Error('Current password is incorrect');
     }
-    
+
     return {
       success: true,
       message: 'Password changed successfully'
     };
   }
 
-  static async resetPassword(email) {
+  static async resetPassword() {
     return {
       success: true,
       message: 'Password reset email sent'

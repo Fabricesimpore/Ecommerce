@@ -31,7 +31,7 @@ class MockProduct {
     });
   }
 
-  static async findAll(options = {}) {
+  static async findAll() {
     return [
       new MockProduct({
         id: 'product-1',
@@ -50,7 +50,7 @@ class MockProduct {
     ];
   }
 
-  static async findByVendor(vendorId, options = {}) {
+  static async findByVendor(vendorId) {
     return [
       new MockProduct({
         id: 'vendor-product-1',
@@ -62,7 +62,7 @@ class MockProduct {
     ];
   }
 
-  static async search(query, options = {}) {
+  static async search(query) {
     return [
       new MockProduct({
         id: 'search-product-1',

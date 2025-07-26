@@ -42,7 +42,7 @@ class MockOrder {
     });
   }
 
-  static async findByBuyer(buyerId, options = {}) {
+  static async findByBuyer(buyerId) {
     return [
       new MockOrder({
         id: 'buyer-order-1',
@@ -54,7 +54,7 @@ class MockOrder {
     ];
   }
 
-  static async findByVendor(vendorId, options = {}) {
+  static async findByVendor(vendorId) {
     return [
       new MockOrder({
         id: 'vendor-order-1',

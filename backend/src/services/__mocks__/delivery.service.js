@@ -116,7 +116,7 @@ class MockDeliveryService {
     };
   }
 
-  static async getDeliveryAnalytics(options = {}) {
+  static async getDeliveryAnalytics() {
     return {
       totalDeliveries: 150,
       completedDeliveries: 140,

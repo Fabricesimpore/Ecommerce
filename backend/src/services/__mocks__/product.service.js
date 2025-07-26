@@ -55,7 +55,7 @@ class MockProductService {
     return { success: true, id };
   }
 
-  static async searchProducts(query, options = {}) {
+  static async searchProducts(query) {
     return {
       products: [
         {
@@ -71,7 +71,7 @@ class MockProductService {
     };
   }
 
-  static async getProductsByVendor(vendorId, options = {}) {
+  static async getProductsByVendor(vendorId) {
     return {
       products: [
         {
@@ -94,7 +94,7 @@ class MockProductService {
     };
   }
 
-  static async getAnalytics(vendorId) {
+  static async getAnalytics() {
     return {
       totalProducts: 5,
       activeProducts: 4,

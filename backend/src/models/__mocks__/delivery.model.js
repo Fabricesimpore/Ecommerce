@@ -52,7 +52,7 @@ class MockDelivery {
     });
   }
 
-  static async findByDriver(driverId, options = {}) {
+  static async findByDriver(driverId) {
     return [
       new MockDelivery({
         id: 'delivery-driver-1',

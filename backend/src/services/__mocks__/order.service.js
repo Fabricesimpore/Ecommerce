@@ -97,10 +97,8 @@ class MockOrderService {
   }
 
   static async calculateOrderTotal(items) {
-    const total = items.reduce((sum, item) => {
-      return sum + (item.price * item.quantity);
-    }, 0);
-    
+    const total = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
     return {
       subtotal: total,
       tax: total * 0.1,
@@ -109,7 +107,7 @@ class MockOrderService {
     };
   }
 
-  static async validateOrder(orderData) {
+  static async validateOrder() {
     return {
       isValid: true,
       errors: []

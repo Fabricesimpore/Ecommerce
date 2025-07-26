@@ -53,8 +53,8 @@ class MockCart {
   }
 
   async addItem(productId, quantity, price) {
-    const existingItem = this.items.find(item => item.productId === productId);
-    
+    const existingItem = this.items.find((item) => item.productId === productId);
+
     if (existingItem) {
       existingItem.quantity += quantity;
       existingItem.total = existingItem.quantity * existingItem.price;
@@ -66,31 +66,31 @@ class MockCart {
         total: quantity * price
       });
     }
-    
+
     this.recalculateTotal();
     this.updated_at = new Date();
     return this;
   }
 
   async updateItem(productId, quantity) {
-    const item = this.items.find(item => item.productId === productId);
-    
+    const item = this.items.find((cartItem) => cartItem.productId === productId);
+
     if (item) {
       if (quantity <= 0) {
-        this.items = this.items.filter(item => item.productId !== productId);
+        this.items = this.items.filter((cartItem) => cartItem.productId !== productId);
       } else {
         item.quantity = quantity;
         item.total = quantity * item.price;
       }
     }
-    
+
     this.recalculateTotal();
     this.updated_at = new Date();
     return this;
   }
 
   async removeItem(productId) {
-    this.items = this.items.filter(item => item.productId !== productId);
+    this.items = this.items.filter((item) => item.productId !== productId);
     this.recalculateTotal();
     this.updated_at = new Date();
     return this;
