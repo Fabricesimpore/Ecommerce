@@ -86,7 +86,8 @@ describe('Button Component', () => {
   it('renders icon variant correctly', () => {
     render(<Button size="icon" variant="ghost">⚙️</Button>)
     const button = screen.getByRole('button')
-    expect(button).toHaveClass('h-9', 'w-9')
+    expect(button).toHaveClass('h-9')
+    expect(button).toHaveClass('w-9')
     expect(button).toHaveTextContent('⚙️')
   })
 })
