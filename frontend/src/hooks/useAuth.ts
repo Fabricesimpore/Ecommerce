@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { useAuthStore, useAuth, useAuthActions } from '@/lib/stores/authStore'
+import { useAuth, useAuthActions } from '@/lib/stores/authStore'
 
 export function useAuthHook() {
   const auth = useAuth()
@@ -10,7 +10,7 @@ export function useAuthHook() {
     if (!auth.isAuthenticated && !auth.isLoading) {
       actions.loadUser()
     }
-  }, [])
+  }, [auth.isAuthenticated, auth.isLoading, actions])
 
   return {
     ...auth,

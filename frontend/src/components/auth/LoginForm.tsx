@@ -137,7 +137,7 @@ export function LoginForm({ onSuccess, redirectTo = '/dashboard' }: LoginFormPro
             Forgot your password?
           </a>
           <p className="text-sm text-gray-600">
-            Don't have an account?{' '}
+            Don&apos;t have an account?{' '}
             <a href="/register" className="text-blue-600 hover:text-blue-800">
               Sign up
             </a>

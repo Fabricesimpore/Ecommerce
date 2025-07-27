@@ -15,7 +15,7 @@ const registerSchema = z.object({
   password: z.string().min(6, 'Password must be at least 6 characters'),
   confirmPassword: z.string().min(6, 'Please confirm your password'),
   role: z.enum(['buyer', 'vendor', 'driver'], {
-    required_error: 'Please select your role',
+    message: 'Please select your role',
   }),
   profile: z.object({
     firstName: z.string().min(2, 'First name must be at least 2 characters'),
