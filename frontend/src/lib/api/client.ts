@@ -1,7 +1,7 @@
 import axios, { AxiosInstance, AxiosResponse, AxiosError } from 'axios'
 
 // Types
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
   data: T
   message?: string
   success: boolean
@@ -129,27 +129,27 @@ class ApiClient {
 
   private formatError(error: AxiosError): ApiError {
     const response = error.response
-    const responseData = response?.data as any
+    const responseData = response?.data as Record<string, unknown>
     
     return {
-      message: responseData?.message || error.message || 'An unexpected error occurred',
+      message: (responseData?.message as string) || error.message || 'An unexpected error occurred',
       status: response?.status,
-      errors: responseData?.errors,
+      errors: responseData?.errors as Record<string, string[]>,
     }
   }
 
   // Public methods
-  async get<T>(url: string, params?: any): Promise<T> {
+  async get<T>(url: string, params?: Record<string, unknown>): Promise<T> {
     const response = await this.client.get<ApiResponse<T>>(url, { params })
     return response.data.data
   }
 
-  async post<T>(url: string, data?: any): Promise<T> {
+  async post<T>(url: string, data?: unknown): Promise<T> {
     const response = await this.client.post<ApiResponse<T>>(url, data)
     return response.data.data
   }
 
-  async put<T>(url: string, data?: any): Promise<T> {
+  async put<T>(url: string, data?: Record<string, unknown>): Promise<T> {
     const response = await this.client.put<ApiResponse<T>>(url, data)
     return response.data.data
   }

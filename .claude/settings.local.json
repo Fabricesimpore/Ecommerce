@@ -38,7 +38,12 @@
       "Bash(npx create-next-app:*)",
       "Bash(git rm:*)",
       "Bash(ls:*)",
-      "Bash(npm run type-check:*)"
+      "Bash(npm run type-check:*)",
+      "Bash(pkill:*)",
+      "Bash(taskkill:*)",
+      "Bash(npm run dev:*)",
+      "Bash(curl:*)",
+      "Bash(powershell:*)"
     ],
     "deny": []
   }

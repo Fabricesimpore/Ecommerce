@@ -1,6 +1,12 @@
 const { Pool } = require('pg');
 require('dotenv').config();
 
+// Use mock database in test mode
+if (process.env.NODE_ENV === 'test') {
+  module.exports = require('./test-database');
+  return;
+}
+
 const config = {
   development: {
     host: process.env.DB_HOST || 'localhost',

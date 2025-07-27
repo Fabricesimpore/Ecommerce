@@ -3,35 +3,9 @@ import { Button } from "@/components/ui/button";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white">
-      {/* Header */}
-      <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
-            <div className="flex items-center">
-              <h1 className="text-2xl font-bold text-gray-900">
-                🛒 E-Commerce Platform
-              </h1>
-              <span className="ml-3 text-sm text-gray-500">Burkina Faso</span>
-            </div>
-            <nav className="flex space-x-4">
-              <Link href="/login">
-                <Button variant="outline" size="sm">
-                  Sign In
-                </Button>
-              </Link>
-              <Link href="/register">
-                <Button size="sm">
-                  Get Started
-                </Button>
-              </Link>
-            </nav>
-          </div>
-        </div>
-      </header>
-
+    <div className="bg-gradient-to-br from-blue-50 to-white">
       {/* Hero Section */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="text-center">
           <h1 className="text-4xl font-bold text-gray-900 sm:text-6xl">
             Your Local
@@ -43,9 +17,9 @@ export default function Home() {
           </p>
           
           <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/register">
+            <Link href="/products">
               <Button size="lg" className="w-full sm:w-auto">
-                Start Shopping
+                🛍️ Browse Products
               </Button>
             </Link>
             <Link href="/register">
@@ -64,7 +38,7 @@ export default function Home() {
             <p className="text-gray-600 mb-4">
               Discover local products, shop safely, and get fast delivery to your doorstep.
             </p>
-            <Link href="/register">
+            <Link href="/products">
               <Button variant="outline" size="sm" className="w-full">
                 Start Shopping
               </Button>
@@ -103,7 +77,12 @@ export default function Home() {
           <h2 className="text-2xl font-bold text-center text-gray-900 mb-6">
             🧪 Test the Platform
           </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+            <Link href="/products">
+              <Button variant="outline" className="w-full">
+                🛍️ Products Page
+              </Button>
+            </Link>
             <Link href="/login">
               <Button variant="outline" className="w-full">
                 📝 Login Page
@@ -124,7 +103,7 @@ export default function Home() {
             Authentication system ready for backend connection
           </p>
         </div>
-      </main>
+      </div>
 
       {/* Footer */}
       <footer className="bg-gray-100 mt-20">
